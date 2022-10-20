@@ -82,6 +82,7 @@ impl Verilator {
         let mut cmd = Command::new("verilator");
 
         cmd.arg("--cc")
+            .arg("-Wall")
             .arg("-Mdir")
             .arg(&out.join("verilator"))
             .arg("--top-module")
@@ -93,6 +94,7 @@ impl Verilator {
         }
 
         let output = cmd.output().expect("Could not run verilator");
+        eprintln!("{}", std::str::from_utf8(&output.stderr).unwrap());
         //TODO print warnings
         assert!(output.status.success());
     }
