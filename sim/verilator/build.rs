@@ -34,5 +34,6 @@ pub fn main() {
         .include(&include)
         .include(include.join("vltstd"))
         .files(files)
+        .file("src/shim.cpp")
         .compile("verilated_all");
 }
