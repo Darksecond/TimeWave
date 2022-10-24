@@ -1,5 +1,11 @@
 verilator::bindings!();
 
+#[allow(dead_code)]
+const ALU_CMD_ADD: u8 = 0;
+
+#[allow(dead_code)]
+const ALU_CMD_SUB: u8 = 1;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -12,7 +18,7 @@ mod tests {
 
         //vcd.dump(0);
 
-        sim.set_cmd(0);
+        sim.set_cmd(ALU_CMD_ADD);
         sim.set_lhs(2);
         sim.set_rhs(1);
         sim.eval();
