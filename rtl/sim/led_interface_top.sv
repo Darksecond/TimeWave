@@ -7,30 +7,43 @@ module led_interface_top(
   output wire logic [3:0] leds
 );
 
-logic [31:0] counter;
-logic [31:0] counter_next;
+logic led_write_req;
+logic [31:0] led_write_data;
 
-logic write_req;
-logic [31:0] write_data;
+logic [31:0] rom_read_data;
+logic rom_read_data_valid;
 
-logic read_req;
+assign led_write_data = rom_read_data;
+assign led_write_req = rom_read_data_valid;
+
+rom #(
+  .Contents("led.mem"),
+  .AddrWidth(32),
+  .DataWidth(32),
+  .Depth(5)
+) rom0
+(
+  .clk(clk),
+  .addr(32'h0),
+  .read_req(1),
+  .read_data(rom_read_data),
+  .read_data_valid(rom_read_data_valid)
+);
 
 led_interface led0(
   .clk(clk),
   .reset_n(reset_n),
-  .write_req(1),
-  .write_data({28'h0, counter[24:21]}),
+  .write_req(led_write_req),
+  .write_data(led_write_data),
   .byte_enable(4'h1),
   .read_req(0),
   .leds(leds)
 );
 
 always_comb begin
-  counter_next = counter + 1;
 end
 
 always_ff @(posedge clk) begin
-  counter <= counter_next;
 end
 
 endmodule
