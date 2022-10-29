@@ -2,7 +2,7 @@
 
 module system_bus
 (
-  input clk,
+  input wire logic clk,
 
   bus.follower leader,
   bus.leader led,
