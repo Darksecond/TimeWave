@@ -14,14 +14,15 @@ logic [31:0] value;
 logic [31:0] value_next;
 
 bus leader_bus();
-bus led_bus();
-bus rom_bus();
+//bus led_bus();
+//bus rom_bus();
+bus followers[0:1];
 
 led_interface led1(
   .clk(clk),
   .reset_n(reset_n),
 
-  .bus(led_bus.follower),
+  .bus(followers[0].follower),
   .leds(leds)
 );
 
@@ -31,15 +32,20 @@ rom #(
 ) rom1
 (
   .clk(clk),
-  .bus(rom_bus.follower)
+  .bus(followers[1].follower)
 );
 
-system_bus system_bus0(
+system_bus
+#(
+  .Followers(2)
+) system_bus0
+(
   .clk(clk),
 
   .leader(leader_bus.follower),
-  .led(led_bus.leader),
-  .rom(rom_bus.leader)
+  //.led(led_bus.leader),
+  //.rom(rom_bus.leader),
+  .followers(followers)
 );
 
 always_comb begin
