@@ -5,6 +5,8 @@ fn main() {
         .with_tracing()
         .file("../../rtl/rom.sv")
         .file("../../rtl/led_interface.sv")
+        .file("../../rtl/system_bus.sv")
+        .file("../../rtl/bus.sv")
         .file("../../rtl/sim/led_interface_top.sv")
         .build();
 
