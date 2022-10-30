@@ -2,7 +2,8 @@
 
 module system_bus
 #(
-  parameter Followers = 0
+  parameter Followers = 0,
+  localparam FollowerBits = $clog2(Followers)
 )
 (
   bus.follower leader,
@@ -24,32 +25,41 @@ bus_decoder
   .addr_masked(addr_masked)
 );
 
+logic [FollowerBits-1:0] select;
+logic [Followers-1:0] requests;
+logic [31:0] read_data [0:Followers-1];
+for (genvar i = 0; i < Followers; i = i + 1) begin
+  assign requests[i] = followers[i].read_data_valid;
+  assign read_data[i] = followers[i].read_data;
+end
+
+priority_encoder
+#(
+  .Count(Followers)
+) encoder0
+(
+  .requests(requests),
+  .select_valid(leader.read_data_valid),
+  .select(select)
+);
+
+multiplexer
+#(
+  .SelectBits(FollowerBits),
+  .DataWidth(32),
+  .Count(Followers)
+) mux0
+(
+  .select(select),
+  .data_in(read_data),
+  .data_out(leader.read_data)
+);
+
 for (genvar i = 0; i < Followers; i = i + 1) begin
   always_comb begin
     followers[i].addr = addr_masked;
     followers[i].write_data = leader.write_data;
     followers[i].byte_enable = leader.byte_enable;
-  end
-end
-
-logic [Followers-1:0] data_valid;
-for (genvar i = 0; i < Followers; i = i + 1) begin
-  assign data_valid[i] = followers[i].read_data_valid;
-end
-assign leader.read_data_valid = |data_valid;
-
-logic [31:0] read_data [0:Followers-1];
-assign read_data[0] = followers[0].read_data;
-
-for (genvar i = 1; i < Followers; i = i + 1) begin
-  always_comb begin
-    read_data[i] = followers[i].read_data_valid ? followers[i].read_data : read_data[i-1];
-  end
-end
-assign leader.read_data = read_data[Followers-1];
-
-for (genvar i = 0; i < Followers; i = i + 1) begin
-  always_comb begin
     followers[i].read_req = 0;
     followers[i].write_req = 0;
 
