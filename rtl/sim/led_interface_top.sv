@@ -14,15 +14,13 @@ logic [31:0] value;
 logic [31:0] value_next;
 
 bus leader_bus();
-//bus led_bus();
-//bus rom_bus();
-bus followers[0:1];
+bus followers[0:2];
 
 led_interface led1(
   .clk(clk),
   .reset_n(reset_n),
 
-  .bus(followers[0].follower),
+  .bus(followers[1].follower),
   .leds(leds)
 );
 
@@ -32,19 +30,15 @@ rom #(
 ) rom1
 (
   .clk(clk),
-  .bus(followers[1].follower)
+  .bus(followers[2].follower)
 );
 
 system_bus
 #(
-  .Followers(2)
+  .Followers(3)
 ) system_bus0
 (
-  .clk(clk),
-
   .leader(leader_bus.follower),
-  //.led(led_bus.leader),
-  //.rom(rom_bus.leader),
   .followers(followers)
 );
 
