@@ -14,7 +14,7 @@ logic [31:0] value;
 logic [31:0] value_next;
 
 bus leader_bus();
-bus followers[0:2];
+bus followers[0:2]();
 
 led_interface led1(
   .clk(clk),

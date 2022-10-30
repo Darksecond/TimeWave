@@ -8,7 +8,7 @@ module bus_decoder
   localparam DataWidth = AddrWidth - MaskWidth
 )
 (
-  input logic [AddrWidth-1:0] addr,
+  input wire logic [AddrWidth-1:0] addr,
   output logic [AddrWidth-1:0] addr_masked,
   output logic [TagWidth-1:0] tag
 );
