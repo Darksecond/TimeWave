@@ -12,6 +12,14 @@ module system_bus
 
 logic [3:0] tag;
 logic [31:0] addr_masked;
+logic [FollowerBits-1:0] select;
+logic [Followers-1:0] requests;
+logic [31:0] read_data [0:Followers-1];
+
+for (genvar i = 0; i < Followers; i = i + 1) begin
+  assign requests[i] = followers[i].read_data_valid;
+  assign read_data[i] = followers[i].read_data;
+end
 
 bus_decoder
 #(
@@ -24,14 +32,6 @@ bus_decoder
   .tag(tag),
   .addr_masked(addr_masked)
 );
-
-logic [FollowerBits-1:0] select;
-logic [Followers-1:0] requests;
-logic [31:0] read_data [0:Followers-1];
-for (genvar i = 0; i < Followers; i = i + 1) begin
-  assign requests[i] = followers[i].read_data_valid;
-  assign read_data[i] = followers[i].read_data;
-end
 
 priority_encoder
 #(

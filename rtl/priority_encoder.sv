@@ -20,7 +20,7 @@ logic [CountBits-1:0] logs [0:Count-1];
 
 for (genvar i = 0; i < Count; i = i + 1) begin
   always_comb begin
-    logs[i] = (requests[i] == 1'b1) ? i[CountBits-1:0] : '0;
+    logs[i] = (lsb[i] == 1'b1) ? i[CountBits-1:0] : '0;
   end
 end
 

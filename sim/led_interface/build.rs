@@ -8,6 +8,7 @@ fn main() {
         .file("../../rtl/system_bus.sv")
         .file("../../rtl/priority_encoder.sv")
         .file("../../rtl/multiplexer.sv")
+        .file("../../rtl/fifo.sv")
         .file("../../rtl/bus.sv")
         .file("../../rtl/bus_decoder.sv")
         .file("../../rtl/sim/led_interface_top.sv")
