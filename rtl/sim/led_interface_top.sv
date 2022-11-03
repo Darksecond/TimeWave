@@ -147,6 +147,18 @@ logic rom_cyc;
 logic rom_stb;
 logic rom_we;
 
+// Dummy
+logic [DataWidth-1:0] dummy_data_s;
+logic dummy_ack;
+logic dummy_stall;
+logic dummy_err;
+logic [DataWidth-1:0] dummy_data_m;
+logic [AddrWidth-1:0] dummy_addr;
+logic [SelWidth-1:0] dummy_sel;
+logic dummy_cyc;
+logic dummy_stb;
+logic dummy_we;
+
 wb_multiplexer
 #(
   .Count(3),
@@ -167,16 +179,16 @@ wb_multiplexer
   .m_stb(m_stb),
   .m_we(m_we),
 
-  .s_data_s({'0, led_data_s, rom_data_s }),
-  .s_ack({'0, led_ack, rom_ack}),
-  .s_stall({'0, led_stall, rom_stall}),
-  .s_err({'0, led_err, rom_err}),
-  .s_data_m({'0, led_data_m, rom_data_m}),
-  .s_addr({'0, led_addr, rom_addr}),
-  .s_sel({'0, led_sel, rom_sel}),
-  .s_cyc({'0, led_cyc, rom_cyc}),
-  .s_stb({'0, led_stb, rom_stb}),
-  .s_we({'0, led_we, rom_we})
+  .s_data_s({dummy_data_s, led_data_s, rom_data_s }),
+  .s_ack({dummy_ack, led_ack, rom_ack}),
+  .s_stall({dummy_stall, led_stall, rom_stall}),
+  .s_err({dummy_err, led_err, rom_err}),
+  .s_data_m({dummy_data_m, led_data_m, rom_data_m}),
+  .s_addr({dummy_addr, led_addr, rom_addr}),
+  .s_sel({dummy_sel, led_sel, rom_sel}),
+  .s_cyc({dummy_cyc, led_cyc, rom_cyc}),
+  .s_stb({dummy_stb, led_stb, rom_stb}),
+  .s_we({dummy_we, led_we, rom_we})
 );
 
 led_interface led0
