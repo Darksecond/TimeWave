@@ -1,37 +1,56 @@
 `default_nettype none
 
 module led_interface
+#(
+  localparam DataWidth = 32,
+  localparam AddrWidth = 32,
+  localparam SelWidth = DataWidth / 8
+)
 (
   input wire logic clk,
   input wire logic reset_n,
 
-  bus.follower bus,
+  output logic [DataWidth-1:0] bus_data_s,
+  output logic bus_ack,
+  output logic bus_stall,
+  output logic bus_err,
+
+  input wire logic [DataWidth-1:0] bus_data_m,
+  input wire logic [AddrWidth-1:0] bus_addr,
+  input wire logic [SelWidth-1:0] bus_sel,
+  input wire logic bus_cyc,
+  input wire logic bus_stb,
+  input wire logic bus_we,
 
   output logic [3:0] leds
 );
 
-logic read_data_valid_next;
 logic [3:0] leds_next;
 
-assign bus.read_data = {28'h0, leds};
+initial begin
+  leds = '0;
+  bus_ack = '0;
+end
 
 always_comb begin
-  read_data_valid_next = bus.read_data_valid;
+  bus_data_s = {28'h0, leds};
+  bus_stall = '0;
+  bus_err = '0;
+
   leds_next = leds;
 
-  read_data_valid_next = bus.read_req;
-  if (bus.write_req && bus.byte_enable[0]) begin
-    leds_next = bus.write_data[3:0];
+  if (bus_stb && bus_we && bus_sel[0]) begin
+    leds_next = bus_data_m[3:0];
   end
 end
 
 always_ff @(posedge clk) begin
   if(!reset_n) begin
-    bus.read_data_valid <= 1'h0;
-    leds <= 4'h0;
+    leds <= '0;
+    bus_ack <= '0;
   end else begin
-    bus.read_data_valid <= read_data_valid_next;
     leds <= leds_next;
+    bus_ack <= bus_stb;
   end
 end
 

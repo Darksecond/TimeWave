@@ -1,5 +1,105 @@
 `default_nettype none
 
+module led_interface_master
+#(
+  localparam DataWidth = 32,
+  localparam AddrWidth = 32,
+  localparam SelWidth = DataWidth / 8
+)
+(
+  input wire logic clk,
+  input wire logic reset_n,
+
+  input logic [DataWidth-1:0] bus_data_s,
+  input logic bus_ack,
+  input logic bus_stall,
+  input logic bus_err,
+
+  output wire logic [DataWidth-1:0] bus_data_m,
+  output wire logic [AddrWidth-1:0] bus_addr,
+  output wire logic [SelWidth-1:0] bus_sel,
+  output wire logic bus_cyc,
+  output wire logic bus_stb,
+  output wire logic bus_we
+);
+
+logic [3:0] state;
+logic [3:0] state_next;
+
+logic [DataWidth-1:0] value;
+logic [DataWidth-1:0] value_next;
+
+initial begin
+  state = '0;
+  value = '0;
+end
+
+always_comb begin
+  state_next = state;
+  value_next = value;
+
+  bus_data_m = '0;
+  bus_addr = '0;
+  bus_sel = '0;
+  bus_cyc = '0;
+  bus_stb = '0;
+  bus_we = '0;
+
+  case (state)
+    4'h0: begin // Begin read
+      bus_cyc = 1'b1;
+      bus_stb = 1'b1;
+      bus_addr = 32'h20000000;
+      if(!bus_stall) begin
+        state_next = 4'h1;
+      end
+    end
+    4'h1: begin // Wait for ack
+      bus_cyc = 1'b1;
+      if(bus_ack) begin
+        state_next = 4'h2;
+        value_next = bus_data_s;
+      end
+    end
+    4'h2: begin // Idle
+      state_next = 4'h3;
+    end
+    4'h3: begin // Begin write
+      bus_cyc = 1'b1;
+      bus_stb = 1'b1;
+      bus_addr = 32'h10000000;
+      bus_sel = 4'h1;
+      bus_data_m = value;
+      bus_we = 1'b1;
+      if(!bus_stall) begin
+        state_next = 4'h4;
+      end
+    end
+    4'h4: begin // Wait for ack
+      bus_cyc = 1'b1;
+      if(bus_ack) begin
+        state_next = 4'h5;
+      end
+    end
+    4'h5: begin // Idle
+      state_next = 4'h0;
+    end
+    default: ;
+  endcase
+end
+
+always_ff @(posedge clk) begin
+  if(!reset_n) begin
+    state <= '0;
+    value <= '0;
+  end else begin
+    state <= state_next;
+    value <= value_next;
+  end
+end
+
+endmodule
+
 module led_interface_top(
   input wire logic clk,
   input wire logic reset_n,
@@ -7,75 +107,132 @@ module led_interface_top(
   output wire logic [3:0] leds
 );
 
-logic [1:0] state = 0;
-logic [1:0] state_next;
+localparam DataWidth = 32;
+localparam AddrWidth = 32;
+localparam SelWidth = DataWidth / 8;
 
-logic [31:0] value;
-logic [31:0] value_next;
+// Master
+logic [DataWidth-1:0] m_data_s;
+logic m_ack;
+logic m_stall;
+logic m_err;
+logic [DataWidth-1:0] m_data_m;
+logic [AddrWidth-1:0] m_addr;
+logic [SelWidth-1:0] m_sel;
+logic m_cyc;
+logic m_stb;
+logic m_we;
 
-bus leader_bus();
-bus followers[0:2]();
+// Led
+logic [DataWidth-1:0] led_data_s;
+logic led_ack;
+logic led_stall;
+logic led_err;
+logic [DataWidth-1:0] led_data_m;
+logic [AddrWidth-1:0] led_addr;
+logic [SelWidth-1:0] led_sel;
+logic led_cyc;
+logic led_stb;
+logic led_we;
 
-led_interface led1(
-  .clk(clk),
-  .reset_n(reset_n),
+// Rom
+logic [DataWidth-1:0] rom_data_s;
+logic rom_ack;
+logic rom_stall;
+logic rom_err;
+logic [DataWidth-1:0] rom_data_m;
+logic [AddrWidth-1:0] rom_addr;
+logic [SelWidth-1:0] rom_sel;
+logic rom_cyc;
+logic rom_stb;
+logic rom_we;
 
-  .bus(followers[1].follower),
-  .leds(leds)
+wb_multiplexer
+#(
+  .Count(3),
+  .MaskWidth(4)
+) wbmux0
+(
+  .clk,
+  .reset_n,
+
+  .m_data_s(m_data_s),
+  .m_ack(m_ack),
+  .m_stall(m_stall),
+  .m_err(m_err),
+  .m_data_m(m_data_m),
+  .m_addr(m_addr),
+  .m_sel(m_sel),
+  .m_cyc(m_cyc),
+  .m_stb(m_stb),
+  .m_we(m_we),
+
+  .s_data_s({'0, led_data_s, rom_data_s }),
+  .s_ack({'0, led_ack, rom_ack}),
+  .s_stall({'0, led_stall, rom_stall}),
+  .s_err({'0, led_err, rom_err}),
+  .s_data_m({'0, led_data_m, rom_data_m}),
+  .s_addr({'0, led_addr, rom_addr}),
+  .s_sel({'0, led_sel, rom_sel}),
+  .s_cyc({'0, led_cyc, rom_cyc}),
+  .s_stb({'0, led_stb, rom_stb}),
+  .s_we({'0, led_we, rom_we})
 );
 
-rom #(
+led_interface led0
+(
+  .clk,
+  .reset_n,
+
+  .bus_data_s(led_data_s),
+  .bus_ack(led_ack),
+  .bus_stall(led_stall),
+  .bus_err(led_err),
+  .bus_data_m(led_data_m),
+  .bus_addr(led_addr),
+  .bus_sel(led_sel),
+  .bus_cyc(led_cyc),
+  .bus_stb(led_stb),
+  .bus_we(led_we),
+
+  .leds
+);
+
+rom
+#(
   .Contents("led.mem"),
   .Depth(5)
-) rom1
+) rom0
 (
-  .clk(clk),
-  .bus(followers[2].follower)
+  .clk,
+
+  .bus_data_s(rom_data_s),
+  .bus_ack(rom_ack),
+  .bus_stall(rom_stall),
+  .bus_err(rom_err),
+  .bus_data_m(rom_data_m),
+  .bus_addr(rom_addr),
+  .bus_sel(rom_sel),
+  .bus_cyc(rom_cyc),
+  .bus_stb(rom_stb),
+  .bus_we(rom_we)
 );
 
-system_bus
-#(
-  .Followers(3)
-) system_bus0
+led_interface_master master0
 (
-  .leader(leader_bus.follower),
-  .followers(followers)
+  .clk,
+  .reset_n,
+
+  .bus_data_s(m_data_s),
+  .bus_ack(m_ack),
+  .bus_stall(m_stall),
+  .bus_err(m_err),
+  .bus_data_m(m_data_m),
+  .bus_addr(m_addr),
+  .bus_sel(m_sel),
+  .bus_cyc(m_cyc),
+  .bus_stb(m_stb),
+  .bus_we(m_we)
 );
-
-always_comb begin
-  state_next = state;
-  value_next = value;
-
-  leader_bus.addr = 0;
-  leader_bus.read_req = 0;
-  leader_bus.write_req = 0;
-  leader_bus.byte_enable = 0;
-  leader_bus.write_data = 0;
-
-  case (state)
-    2'h0: begin
-      leader_bus.addr = 32'h20000000;
-      leader_bus.read_req = 1;
-      state_next = 2'h1;
-    end
-    2'h1: begin
-      if (leader_bus.read_data_valid)
-        value_next = leader_bus.read_data;
-        state_next = 2'h2;
-    end
-    2'h2: begin
-      leader_bus.addr = 32'h10000000;
-      leader_bus.byte_enable = 4'h1;
-      leader_bus.write_req = 1;
-      leader_bus.write_data = value;
-    end
-    default: ;
-  endcase
-end
-
-always_ff @(posedge clk) begin
-  state <= state_next;
-  value <= value_next;
-end
 
 endmodule

@@ -5,6 +5,7 @@ module bus_decoder
   parameter MaskWidth = 0,
   parameter TagWidth = 0,
   parameter AddrWidth = 32,
+
   localparam DataWidth = AddrWidth - MaskWidth
 )
 (

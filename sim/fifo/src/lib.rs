@@ -180,7 +180,6 @@ mod tests {
         fifo.sim.set_write_enable(true);
         fifo.prop();
         fifo.clock();
-        fifo.clock();
         assert_eq!(false, fifo.sim.empty());
         assert_eq!(0xDEADBEEF, fifo.sim.read_data());
     }

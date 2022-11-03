@@ -9,7 +9,13 @@ fn main() {
         .file("../../rtl/priority_encoder.sv")
         .file("../../rtl/multiplexer.sv")
         .file("../../rtl/fifo.sv")
+        .file("../../rtl/onehot_mux.sv")
+        .file("../../rtl/priority_arbiter.sv")
+        .file("../../rtl/word_reducer.sv")
         .file("../../rtl/bus.sv")
+        .file("../../rtl/wb_bus.sv")
+        .file("../../rtl/wb_arbiter.sv")
+        .file("../../rtl/wb_multiplexer.sv")
         .file("../../rtl/bus_decoder.sv")
         .file("../../rtl/sim/led_interface_top.sv")
         .build();
