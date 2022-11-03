@@ -29,10 +29,10 @@ module wb_multiplexer
   input wire logic m_we,
 
   // Slaves
-  input logic [DataWidth-1:0] s_data_s [Count],
-  input logic s_ack [Count],
-  input logic s_stall [Count],
-  input logic s_err [Count],
+  input wire logic [DataWidth-1:0] s_data_s [Count],
+  input wire logic s_ack [Count],
+  input wire logic s_stall [Count],
+  input wire logic s_err [Count],
 
   output wire logic [DataWidth-1:0] s_data_m [Count],
   output wire logic [AddrWidth-1:0] s_addr [Count],
