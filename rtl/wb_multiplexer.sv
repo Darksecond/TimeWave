@@ -34,12 +34,12 @@ module wb_multiplexer
   input wire logic s_stall [Count],
   input wire logic s_err [Count],
 
-  output wire logic [DataWidth-1:0] s_data_m [Count],
-  output wire logic [AddrWidth-1:0] s_addr [Count],
-  output wire logic [SelWidth-1:0] s_sel [Count],
-  output wire logic s_cyc [Count],
-  output wire logic s_stb [Count],
-  output wire logic s_we [Count]
+  output logic [DataWidth-1:0] s_data_m [Count],
+  output logic [AddrWidth-1:0] s_addr [Count],
+  output logic [SelWidth-1:0] s_sel [Count],
+  output logic s_cyc [Count],
+  output logic s_stb [Count],
+  output logic s_we [Count]
 );
 
 logic [AddrWidth-1:0] addr_masked;

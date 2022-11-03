@@ -10,17 +10,17 @@ module led_interface_master
   input wire logic clk,
   input wire logic reset_n,
 
-  input logic [DataWidth-1:0] bus_data_s,
-  input logic bus_ack,
-  input logic bus_stall,
-  input logic bus_err,
+  input wire logic [DataWidth-1:0] bus_data_s,
+  input wire logic bus_ack,
+  input wire logic bus_stall,
+  input wire logic bus_err,
 
-  output wire logic [DataWidth-1:0] bus_data_m,
-  output wire logic [AddrWidth-1:0] bus_addr,
-  output wire logic [SelWidth-1:0] bus_sel,
-  output wire logic bus_cyc,
-  output wire logic bus_stb,
-  output wire logic bus_we
+  output logic [DataWidth-1:0] bus_data_m,
+  output logic [AddrWidth-1:0] bus_addr,
+  output logic [SelWidth-1:0] bus_sel,
+  output logic bus_cyc,
+  output logic bus_stb,
+  output logic bus_we
 );
 
 logic [3:0] state;
@@ -104,7 +104,7 @@ module led_interface_top(
   input wire logic clk,
   input wire logic reset_n,
 
-  output wire logic [3:0] leds
+  output logic [3:0] leds
 );
 
 localparam DataWidth = 32;
