@@ -179,16 +179,16 @@ wb_multiplexer
   .m_stb(m_stb),
   .m_we(m_we),
 
-  .s_data_s({dummy_data_s, led_data_s, rom_data_s }),
-  .s_ack({dummy_ack, led_ack, rom_ack}),
-  .s_stall({dummy_stall, led_stall, rom_stall}),
-  .s_err({dummy_err, led_err, rom_err}),
-  .s_data_m({dummy_data_m, led_data_m, rom_data_m}),
-  .s_addr({dummy_addr, led_addr, rom_addr}),
-  .s_sel({dummy_sel, led_sel, rom_sel}),
-  .s_cyc({dummy_cyc, led_cyc, rom_cyc}),
-  .s_stb({dummy_stb, led_stb, rom_stb}),
-  .s_we({dummy_we, led_we, rom_we})
+  .s_data_s('{dummy_data_s, led_data_s, rom_data_s }),
+  .s_ack('{dummy_ack, led_ack, rom_ack}),
+  .s_stall('{dummy_stall, led_stall, rom_stall}),
+  .s_err('{dummy_err, led_err, rom_err}),
+  .s_data_m('{dummy_data_m, led_data_m, rom_data_m}),
+  .s_addr('{dummy_addr, led_addr, rom_addr}),
+  .s_sel('{dummy_sel, led_sel, rom_sel}),
+  .s_cyc('{dummy_cyc, led_cyc, rom_cyc}),
+  .s_stb('{dummy_stb, led_stb, rom_stb}),
+  .s_we('{dummy_we, led_we, rom_we})
 );
 
 led_interface led0
