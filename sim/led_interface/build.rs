@@ -4,6 +4,7 @@ fn main() {
     let model = Verilator::new("led_interface_top")
         .with_tracing()
         .file("../../rtl/rom.sv")
+        .file("../../rtl/ram.sv")
         .file("../../rtl/led_interface.sv")
         .file("../../rtl/wb_multiplexer.sv")
         .file("../../rtl/bus_decoder.sv")
