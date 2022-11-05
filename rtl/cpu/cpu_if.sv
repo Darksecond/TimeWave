@@ -11,7 +11,7 @@ module cpu_if
   input wire logic clk,
   input wire logic reset_n,
 
-  input logic pc_valid,
+  input wire logic pc_valid,
   input wire logic [AddrWidth-1:0] pc,
   output logic [DataWidth-1:0] instr,
   output logic instr_valid,
