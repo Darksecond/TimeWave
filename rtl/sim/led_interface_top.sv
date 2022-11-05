@@ -230,10 +230,51 @@ rom
   .bus_we(rom_we)
 );
 
+/*
 led_interface_master master0
 (
   .clk,
   .reset_n,
+
+  .bus_data_s(m_data_s),
+  .bus_ack(m_ack),
+  .bus_stall(m_stall),
+  .bus_err(m_err),
+  .bus_data_m(m_data_m),
+  .bus_addr(m_addr),
+  .bus_sel(m_sel),
+  .bus_cyc(m_cyc),
+  .bus_stb(m_stb),
+  .bus_we(m_we)
+);
+*/
+
+logic if_ready, if_enable;
+logic [31:0] pc;
+
+logic [31:0] instr;
+
+initial begin
+  pc = 32'h20000000;
+end
+
+cpu_control cpu_control0
+(
+  .clk,
+  .reset_n,
+  .if_ready,
+  .if_enable
+);
+
+cpu_if cpu_if0
+(
+  .clk,
+  .reset_n,
+
+  .instr_valid(if_ready),
+  .instr,
+  .pc_valid(if_enable),
+  .pc,
 
   .bus_data_s(m_data_s),
   .bus_ack(m_ack),

@@ -1,8 +1,7 @@
 `default_nettype none
 
-module rom
+module ram
 #(
-  parameter Contents = "",
   parameter Depth = 0,
 
   localparam DataWidth = 32,
@@ -29,15 +28,20 @@ logic [DataWidth-1:0] mem [0:Depth-1];
 
 initial begin
   bus_ack = '0;
-
-  $readmemh(Contents, mem);
 end
 
 assign bus_err = '0;
 assign bus_stall = '0;
 
 always_ff @(posedge clk) begin
+  for(integer i = 0; i < SelWidth; i += 1) begin
+    if(bus_stb & bus_we & bus_sel[i]) begin
+      mem[bus_addr][i * 8 +: 8] <= bus_data_m[i * 8 +: 8];
+    end
+  end
+
   bus_data_s <= mem[bus_addr];
+
   bus_ack <= bus_stb;
 end
 

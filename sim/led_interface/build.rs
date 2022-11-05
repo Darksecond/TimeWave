@@ -5,6 +5,7 @@ fn main() {
         .with_tracing()
         .file("../../rtl/rom.sv")
         .file("../../rtl/ram.sv")
+        .file("../../rtl/cpu/cpu_if.sv")
         .file("../../rtl/led_interface.sv")
         .file("../../rtl/wb_multiplexer.sv")
         .file("../../rtl/bus_decoder.sv")

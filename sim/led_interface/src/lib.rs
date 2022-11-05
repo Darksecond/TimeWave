@@ -57,7 +57,7 @@ mod tests {
         let mut time = 0u32;
 
         sim.set_reset_n(false);
-        sim.set_clk(false);
+        sim.set_clk(true);
         sim.eval();
         vcd.dump(time as _);
         time += 1;
