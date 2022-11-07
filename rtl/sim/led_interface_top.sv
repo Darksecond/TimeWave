@@ -1,106 +1,7 @@
 `default_nettype none
 
-module led_interface_master
-#(
-  localparam DataWidth = 32,
-  localparam AddrWidth = 32,
-  localparam SelWidth = DataWidth / 8
-)
+module led_interface_top
 (
-  input wire logic clk,
-  input wire logic reset_n,
-
-  input wire logic [DataWidth-1:0] bus_data_s,
-  input wire logic bus_ack,
-  input wire logic bus_stall,
-  input wire logic bus_err,
-
-  output logic [DataWidth-1:0] bus_data_m,
-  output logic [AddrWidth-1:0] bus_addr,
-  output logic [SelWidth-1:0] bus_sel,
-  output logic bus_cyc,
-  output logic bus_stb,
-  output logic bus_we
-);
-
-logic [3:0] state;
-logic [3:0] state_next;
-
-logic [DataWidth-1:0] value;
-logic [DataWidth-1:0] value_next;
-
-initial begin
-  state = '0;
-  value = '0;
-end
-
-always_comb begin
-  state_next = state;
-  value_next = value;
-
-  bus_data_m = '0;
-  bus_addr = '0;
-  bus_sel = '0;
-  bus_cyc = '0;
-  bus_stb = '0;
-  bus_we = '0;
-
-  case (state)
-    4'h0: begin // Begin read
-      bus_cyc = 1'b1;
-      bus_stb = 1'b1;
-      bus_addr = 32'h20000000;
-      if(!bus_stall) begin
-        state_next = 4'h1;
-      end
-    end
-    4'h1: begin // Wait for ack
-      bus_cyc = 1'b1;
-      if(bus_ack) begin
-        state_next = 4'h2;
-        value_next = bus_data_s;
-      end
-    end
-    4'h2: begin // Idle
-      state_next = 4'h3;
-    end
-    4'h3: begin // Begin write
-      bus_cyc = 1'b1;
-      bus_stb = 1'b1;
-      bus_addr = 32'h10000000;
-      bus_sel = 4'h1;
-      bus_data_m = value;
-      bus_we = 1'b1;
-      if(!bus_stall) begin
-        state_next = 4'h4;
-      end
-    end
-    4'h4: begin // Wait for ack
-      bus_cyc = 1'b1;
-      if(bus_ack) begin
-        state_next = 4'h5;
-      end
-    end
-    4'h5: begin // Idle
-      state_next = 4'h0;
-    end
-    default: ;
-  endcase
-end
-
-always_ff @(posedge clk) begin
-  if(!reset_n) begin
-    state <= '0;
-    value <= '0;
-  end else begin
-    state <= state_next;
-    value <= value_next;
-  end
-end
-
-endmodule
-
-module led_interface_top(
   input wire logic clk,
   input wire logic reset_n,
 
@@ -108,7 +9,7 @@ module led_interface_top(
 );
 
 localparam DataWidth = 32;
-localparam AddrWidth = 32;
+localparam AddrWidth = 30;
 localparam SelWidth = DataWidth / 8;
 
 // Master
@@ -147,21 +48,9 @@ logic rom_cyc;
 logic rom_stb;
 logic rom_we;
 
-// Dummy
-logic [DataWidth-1:0] dummy_data_s;
-logic dummy_ack;
-logic dummy_stall;
-logic dummy_err;
-logic [DataWidth-1:0] dummy_data_m;
-logic [AddrWidth-1:0] dummy_addr;
-logic [SelWidth-1:0] dummy_sel;
-logic dummy_cyc;
-logic dummy_stb;
-logic dummy_we;
-
 wb_multiplexer
 #(
-  .Count(3),
+  .Count(2),
   .MaskWidth(4)
 ) wbmux0
 (
@@ -179,16 +68,16 @@ wb_multiplexer
   .m_stb(m_stb),
   .m_we(m_we),
 
-  .s_data_s('{dummy_data_s, led_data_s, rom_data_s }),
-  .s_ack('{dummy_ack, led_ack, rom_ack}),
-  .s_stall('{dummy_stall, led_stall, rom_stall}),
-  .s_err('{dummy_err, led_err, rom_err}),
-  .s_data_m('{dummy_data_m, led_data_m, rom_data_m}),
-  .s_addr('{dummy_addr, led_addr, rom_addr}),
-  .s_sel('{dummy_sel, led_sel, rom_sel}),
-  .s_cyc('{dummy_cyc, led_cyc, rom_cyc}),
-  .s_stb('{dummy_stb, led_stb, rom_stb}),
-  .s_we('{dummy_we, led_we, rom_we})
+  .s_data_s('{rom_data_s, led_data_s}),
+  .s_ack('{rom_ack, led_ack}),
+  .s_stall('{rom_stall, led_stall}),
+  .s_err('{rom_err, led_err}),
+  .s_data_m('{rom_data_m, led_data_m}),
+  .s_addr('{rom_addr, led_addr}),
+  .s_sel('{rom_sel, led_sel}),
+  .s_cyc('{rom_cyc, led_cyc}),
+  .s_stb('{rom_stb, led_stb}),
+  .s_we('{rom_we, led_we})
 );
 
 led_interface led0
@@ -213,7 +102,7 @@ led_interface led0
 rom
 #(
   .Contents("led.mem"),
-  .Depth(5)
+  .Depth(4096) //16 Kilobytes
 ) rom0
 (
   .clk,
@@ -230,62 +119,21 @@ rom
   .bus_we(rom_we)
 );
 
-/*
-led_interface_master master0
+cpu cpu0
 (
   .clk,
   .reset_n,
 
-  .bus_data_s(m_data_s),
-  .bus_ack(m_ack),
-  .bus_stall(m_stall),
-  .bus_err(m_err),
-  .bus_data_m(m_data_m),
-  .bus_addr(m_addr),
-  .bus_sel(m_sel),
-  .bus_cyc(m_cyc),
-  .bus_stb(m_stb),
-  .bus_we(m_we)
-);
-*/
-
-logic if_ready, if_enable;
-logic [31:0] pc;
-
-logic [31:0] instr;
-
-initial begin
-  pc = 32'h20000000;
-end
-
-cpu_control cpu_control0
-(
-  .clk,
-  .reset_n,
-  .if_ready,
-  .if_enable
-);
-
-cpu_if cpu_if0
-(
-  .clk,
-  .reset_n,
-
-  .instr_valid(if_ready),
-  .instr,
-  .pc_valid(if_enable),
-  .pc,
-
-  .bus_data_s(m_data_s),
-  .bus_ack(m_ack),
-  .bus_stall(m_stall),
-  .bus_err(m_err),
-  .bus_data_m(m_data_m),
-  .bus_addr(m_addr),
-  .bus_sel(m_sel),
-  .bus_cyc(m_cyc),
-  .bus_stb(m_stb),
-  .bus_we(m_we)
+  .m_instr_data_s(m_data_s),
+  .m_instr_ack(m_ack),
+  .m_instr_stall(m_stall),
+  .m_instr_err(m_err),
+  .m_instr_data_m(m_data_m),
+  .m_instr_addr(m_addr),
+  .m_instr_sel(m_sel),
+  .m_instr_cyc(m_cyc),
+  .m_instr_stb(m_stb),
+  .m_instr_we(m_we)
 );
 
 endmodule
