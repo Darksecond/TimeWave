@@ -1,0 +1,104 @@
+[*]
+[*] GTKWave Analyzer v3.3.107 (w)1999-2020 BSI
+[*] Wed Nov  9 21:40:20 2022
+[*]
+[dumpfile] "/Users/proto/Development/timewave/sim/riscv/trace.vcd"
+[dumpfile_mtime] "Wed Nov  9 21:39:58 2022"
+[dumpfile_size] 14212
+[savefile] "/Users/proto/Development/timewave/sim/riscv/trace.gtkw"
+[timestart] 0
+[size] 2560 1308
+[pos] -1 -1
+*-1.899056 2 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.riscv_top.
+[treeopen] TOP.riscv_top.cpu0.
+[sst_width] 193
+[signals_width] 176
+[sst_expanded] 1
+[sst_vpaned_height] 1038
+@28
+TOP.clk_i
+TOP.reset_ni
+@200
+-BUS
+@28
+TOP.riscv_top.cpu0.wb_i_cyc_o
+TOP.riscv_top.cpu0.wb_i_stb_o
+TOP.riscv_top.cpu0.wb_i_ack_i
+@22
+TOP.riscv_top.cpu0.wb_i_addr_o[29:0]
+TOP.riscv_top.cpu0.wb_i_data_i[31:0]
+@200
+-IFU
+@22
+TOP.riscv_top.cpu0.ifu0.instr_q[31:0]
+@28
+TOP.riscv_top.cpu0.ifu0.instr_valid_q
+TOP.riscv_top.cpu0.ifu0.instr_ready_i
+TOP.riscv_top.cpu0.ifu0.invalid_q
+@22
+TOP.riscv_top.cpu0.ifu0.pc_i[29:0]
+@c00022
+TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+@28
+(0)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(1)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(2)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(3)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(4)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(5)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(6)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(7)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(8)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(9)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(10)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(11)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(12)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(13)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(14)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(15)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(16)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(17)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(18)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(19)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(20)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(21)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(22)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(23)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(24)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(25)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(26)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(27)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(28)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+(29)TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
+@1401200
+-group_end
+@28
+TOP.riscv_top.cpu0.ifu0.pc_valid_i
+TOP.riscv_top.cpu0.ifu0.reset_ni
+@200
+-DUMMY
+@28
+TOP.riscv_top.cpu0.dummy0.clear_i
+@22
+TOP.riscv_top.cpu0.dummy0.instr_i[31:0]
+@28
+TOP.riscv_top.cpu0.dummy0.instr_valid_i
+TOP.riscv_top.cpu0.dummy0.instr_ready_q
+@22
+TOP.riscv_top.cpu0.dummy0.instr_q[31:0]
+@29
+TOP.riscv_top.cpu0.dummy0.instr_valid_q
+@28
+TOP.riscv_top.cpu0.dummy0.instr_ready_i
+@200
+-BRANCH
+@22
+TOP.riscv_top.cpu0.branch0.instr_i[31:0]
+@28
+TOP.riscv_top.cpu0.branch0.instr_ready_o
+TOP.riscv_top.cpu0.branch0.instr_valid_i
+TOP.riscv_top.cpu0.branch0.pc_valid_o
+[pattern_trace] 1
+[pattern_trace] 0

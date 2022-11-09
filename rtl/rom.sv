@@ -1,12 +1,14 @@
 `default_nettype none
 
+/* verilator lint_off UNUSED */
+
 module rom
 #(
   parameter Contents = "",
   parameter Depth = 0,
 
   localparam DataWidth = 32,
-  localparam AddrWidth = 32,
+  localparam AddrWidth = $clog2(Depth),
   localparam SelWidth = DataWidth / 8
 )
 (
