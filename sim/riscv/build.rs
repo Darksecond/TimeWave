@@ -6,6 +6,7 @@ fn main() {
         .file("../../rtl/sim/riscv_top.sv")
         .file("../../rtl/riscv/riscv.sv")
         .file("../../rtl/rom.sv")
+        .file("../../rtl/alu.sv")
         .build();
 
     Driver::new(model)

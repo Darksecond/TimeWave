@@ -39,7 +39,12 @@ assign bus_err = '0;
 assign bus_stall = '0;
 
 always_ff @(posedge clk) begin
-  bus_data_s <= mem[bus_addr];
+  // Not strictly needed, but it cleans up the trace a bit for now
+  if(bus_stb) begin
+    bus_data_s <= mem[bus_addr];
+  end else begin
+    bus_data_s <= '0;
+  end
   bus_ack <= bus_stb;
 end
 

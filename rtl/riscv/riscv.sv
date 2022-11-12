@@ -15,9 +15,10 @@ module riscv_ifu
   input wire logic [29:0] pc_i,
 
   // Interface to IDU
-  input wire logic instr_ready_i,
-  output logic instr_valid_o,
+  input wire logic instr_ready_i, //TODO rename to ready_i ?
+  output logic instr_valid_o, //TODO rename to valid_o ?
   output logic [31:0] instr_o,
+  output logic [29:0] pc_o,
 
   // Master port
   input wire logic wb_ack_i,
@@ -81,6 +82,7 @@ end
 always_ff @(posedge clk_i) begin
   if(wb_cyc_o && wb_ack_i) begin
     instr_q <= wb_data_i;
+    pc_o <= pc_q;
   end
 end
 
@@ -104,6 +106,117 @@ end
 
 endmodule
 
+
+module riscv_regfile
+(
+  input wire logic clk_i,
+
+  // write port
+  input wire logic [31:0] w_data_i,
+  input wire logic [4:0] w_addr_i,
+  input wire logic w_enable_i,
+
+  // read port 0
+  input wire logic [4:0] rd0_addr_i,
+  output logic [31:0] rd0_data_o,
+
+  // read port 1
+  input wire logic [4:0] rd1_addr_i,
+  output logic [31:0] rd1_data_o
+);
+
+logic [31:0] regs[32];
+
+initial begin
+  for(int i = 0; i < Count; i+= 1) begin
+    regs[i] = '0;
+  end
+end
+
+always_comb begin
+  rd0_data_o = regs[rd0_addr_i];
+  rd1_data_o = regs[rd1_addr_i];
+end
+
+always_ff @(posedge clk_i) begin
+  if(w_enable_i && w_addr_i != '0) begin
+    regs[w_addr_i] <= w_data_i;
+  end
+end
+
+endmodule;
+
+
+// Instruction Decode Unit
+module riscv_idu
+(
+  input wire logic clk_i,
+  input wire logic reset_ni,
+
+  input wire logic clear_i, // Branch Clear
+  input wire logic stall_i, // Hazard stall
+
+  // IFU interface
+  output logic ready_o,
+  input wire logic valid_i,
+  input wire logic [31:0] instr_i,
+  input wire logic [29:0] pc_i,
+
+  // EXU interface
+  input wire logic ready_i,
+  output logic valid_o,
+
+  // alu
+  output alu_cmd_t alu_cmd_o,
+  output logic [31:0] alu_lhs_o,
+  output logic [31:0] alu_rhs_o,
+
+  // branch
+  output branch_alu_cmd_t branch_cmd_o,
+  output logic [31:0] branch_lhs_o,
+  output logic [31:0] branch_rhs_o,
+
+  //TODO y'know, signals
+
+  // Regfile interface
+  output logic [4:0] rf_rd0_addr_o,
+  output logic [4:0] rf_rd1_addr_o,
+  input wire logic [31:0] rf_rd0_data_i,
+  input wire logic [31:0] rf_rd0_data_i
+);
+
+logic [6:0] opcode;
+logic [4:0] rd;
+logic [2:0] funct3;
+logic [4:0] rs1;
+logic [4:0] rs2;
+logic [6:0] funct7;
+
+logic [31:0] i_imm;
+logic [31:0] s_imm;
+logic [31:0] b_imm;
+logic [31:0] u_imm;
+logic [31:0] j_imm;
+
+initial ready_o = '1; //TODO probably needs to be combinatorical
+initial valid_o = '0;
+
+always_comb begin
+  opcode = instr_i[6:0];
+  rd = instr_i[11:7];
+  funct3 = instr_i[14:12];
+  rs1 = instr_i[19:15];
+  rs2 = instr_i[24:20];
+  funct7 = instr_i[31:25];
+
+  i_imm = { {20{instr_i[31]}} , instr_i[31:20] };
+  s_imm = { {20{instr_i[31]}}, instr_i[31:25], instr_i[11:7] };
+  b_imm = { {19{instr_i[31]}}, instr_i[31], instr_i[7], instr_i[30:25], instr_i[11:8], 1'b0 };
+  u_imm = { instr_i[31:12], 12'b0 };
+  j_imm = { {12{instr_i[31]}}, instr_i[19:12], instr_i[20], instr_i[30:21], 1'b0 };
+end
+
+endmodule
 
 
 module riscv_dummy
