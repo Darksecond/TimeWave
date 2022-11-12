@@ -166,6 +166,10 @@ module riscv_idu
   input wire logic ready_i,
   output logic valid_o,
 
+  output [29:0] pc_o,
+
+  output [4:0] rd_addr_o,
+
   // alu
   output alu_cmd_t alu_cmd_o,
   output logic [31:0] alu_lhs_o,
@@ -175,6 +179,8 @@ module riscv_idu
   output branch_alu_cmd_t branch_cmd_o,
   output logic [31:0] branch_lhs_o,
   output logic [31:0] branch_rhs_o,
+
+  output logic branch_o, // Perform a jump or branch
 
   //TODO y'know, signals
 
@@ -198,6 +204,8 @@ logic [31:0] b_imm;
 logic [31:0] u_imm;
 logic [31:0] j_imm;
 
+logic branch_cmd_d;
+
 initial ready_o = '1; //TODO probably needs to be combinatorical
 initial valid_o = '0;
 
@@ -214,6 +222,16 @@ always_comb begin
   b_imm = { {19{instr_i[31]}}, instr_i[31], instr_i[7], instr_i[30:25], instr_i[11:8], 1'b0 };
   u_imm = { instr_i[31:12], 12'b0 };
   j_imm = { {12{instr_i[31]}}, instr_i[19:12], instr_i[20], instr_i[30:21], 1'b0 };
+
+  unique case (funct3)
+    3'b000: branch_cmd_d = Eq;
+    3'b001: branch_cmd_d = Ne;
+    3'b100: branch_cmd_d = Lt;
+    3'b101: branch_cmd_d = Ge;
+    3'b110: branch_cmd_d = Ltu;
+    3'b111: branch_cmd_d = Geu;
+    default: branch_cmd_d = Eq;
+  endcase
 end
 
 endmodule

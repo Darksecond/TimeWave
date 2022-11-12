@@ -26,7 +26,7 @@ logic [4:0] shamt;
 assign shamt = rhs[4:0];
 
 always_comb begin
-  case (cmd)
+  unique case (cmd)
     Add: res_o = lhs_i + rhs_i;
     Sub: res_o = lhs_i - rhs_i;
     And: res_o = lhs_i & rhs_i;
@@ -59,7 +59,7 @@ module branch_alu
 );
 
 always_comb begin
-  case (cmd)
+  unique case (cmd)
     Eq: res_o = lhs_i == rhs_i ? 1'b1 : 1'b0;
     Ne: res_o = lhs_i != rhs_i ? 1'b1 : 1'b0;
     Lt: res_o = $signed(lhs_i) < $signed(rhs_i) ? 1'b1 : 1'b0;
