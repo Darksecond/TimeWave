@@ -4,9 +4,9 @@ fn main() {
     let model = Verilator::new("riscv_top")
         .with_tracing()
         .file("../../rtl/sim/riscv_top.sv")
+        .file("../../rtl/alu.sv")
         .file("../../rtl/riscv/riscv.sv")
         .file("../../rtl/rom.sv")
-        .file("../../rtl/alu.sv")
         .build();
 
     Driver::new(model)

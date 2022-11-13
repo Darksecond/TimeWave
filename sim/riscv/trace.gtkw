@@ -1,22 +1,25 @@
 [*]
 [*] GTKWave Analyzer v3.3.107 (w)1999-2020 BSI
-[*] Fri Nov 11 18:12:21 2022
+[*] Sun Nov 13 13:53:26 2022
 [*]
 [dumpfile] "/Users/proto/Development/timewave/sim/riscv/trace.vcd"
-[dumpfile_mtime] "Fri Nov 11 18:10:48 2022"
-[dumpfile_size] 15861
+[dumpfile_mtime] "Sun Nov 13 13:53:04 2022"
+[dumpfile_size] 39663
 [savefile] "/Users/proto/Development/timewave/sim/riscv/trace.gtkw"
-[timestart] 0
+[timestart] 10
 [size] 2560 1308
 [pos] -1 -1
-*-1.899056 73 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-1.899056 21 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.riscv_top.
 [treeopen] TOP.riscv_top.cpu0.
+[treeopen] TOP.riscv_top.cpu0.exu0.
+[treeopen] TOP.riscv_top.cpu0.idu0.
+[treeopen] TOP.riscv_top.cpu0.reg0.
 [sst_width] 193
-[signals_width] 176
+[signals_width] 219
 [sst_expanded] 1
-[sst_vpaned_height] 422
+[sst_vpaned_height] 668
 @28
 TOP.clk_i
 TOP.reset_ni
@@ -33,7 +36,6 @@ TOP.riscv_top.cpu0.wb_i_data_i[31:0]
 -IFU
 @22
 TOP.riscv_top.cpu0.ifu0.instr_q[31:0]
-@23
 TOP.riscv_top.cpu0.ifu0.pc_o[29:0]
 @28
 TOP.riscv_top.cpu0.ifu0.instr_valid_q
@@ -80,26 +82,156 @@ TOP.riscv_top.cpu0.ifu0.pc_q[29:0]
 TOP.riscv_top.cpu0.ifu0.pc_valid_i
 TOP.riscv_top.cpu0.ifu0.reset_ni
 @200
--DUMMY
+-IDU
+@29
+TOP.riscv_top.cpu0.idu0.stall_i
 @28
-TOP.riscv_top.cpu0.dummy0.clear_i
+TOP.riscv_top.cpu0.idu0.clear_i
+TOP.riscv_top.cpu0.idu0.valid_i
+TOP.riscv_top.cpu0.idu0.valid_o
+TOP.riscv_top.cpu0.idu0.ready_i
+TOP.riscv_top.cpu0.idu0.ready_o
 @22
-TOP.riscv_top.cpu0.dummy0.instr_i[31:0]
+TOP.riscv_top.cpu0.idu0.pc_i[29:0]
+TOP.riscv_top.cpu0.idu0.pc_o[29:0]
+TOP.riscv_top.cpu0.idu0.instr_i[31:0]
+@c00028
+TOP.riscv_top.cpu0.idu0.opcode[6:0]
 @28
-TOP.riscv_top.cpu0.dummy0.instr_valid_i
-TOP.riscv_top.cpu0.dummy0.instr_ready_q
+(0)TOP.riscv_top.cpu0.idu0.opcode[6:0]
+(1)TOP.riscv_top.cpu0.idu0.opcode[6:0]
+(2)TOP.riscv_top.cpu0.idu0.opcode[6:0]
+(3)TOP.riscv_top.cpu0.idu0.opcode[6:0]
+(4)TOP.riscv_top.cpu0.idu0.opcode[6:0]
+(5)TOP.riscv_top.cpu0.idu0.opcode[6:0]
+(6)TOP.riscv_top.cpu0.idu0.opcode[6:0]
+@1401200
+-group_end
+@28
+TOP.riscv_top.cpu0.idu0.funct3[2:0]
 @22
-TOP.riscv_top.cpu0.dummy0.instr_q[31:0]
+TOP.riscv_top.cpu0.idu0.funct7[6:0]
+TOP.riscv_top.cpu0.idu0.b_imm[31:0]
+TOP.riscv_top.cpu0.idu0.i_imm[31:0]
+TOP.riscv_top.cpu0.idu0.j_imm[31:0]
+TOP.riscv_top.cpu0.idu0.s_imm[31:0]
+TOP.riscv_top.cpu0.idu0.u_imm[31:0]
+TOP.riscv_top.cpu0.idu0.rd[4:0]
+TOP.riscv_top.cpu0.idu0.rs1[4:0]
+TOP.riscv_top.cpu0.idu0.rs2[4:0]
+TOP.riscv_top.cpu0.idu0.alu_cmd_o[3:0]
+TOP.riscv_top.cpu0.idu0.alu_lhs_o[31:0]
+TOP.riscv_top.cpu0.idu0.alu_rhs_o[31:0]
+TOP.riscv_top.cpu0.idu0.rd_addr_o[4:0]
+TOP.riscv_top.cpu0.idu0.rf_rd0_addr_o[4:0]
+TOP.riscv_top.cpu0.idu0.rf_rd0_data_i[31:0]
+TOP.riscv_top.cpu0.idu0.rf_rd1_addr_o[4:0]
+TOP.riscv_top.cpu0.idu0.rf_rd1_data_i[31:0]
+TOP.riscv_top.cpu0.idu0.alu_cmd_d[3:0]
+TOP.riscv_top.cpu0.idu0.alu_lhs_d[31:0]
+TOP.riscv_top.cpu0.idu0.alu_rhs_d[31:0]
 @28
-TOP.riscv_top.cpu0.dummy0.instr_valid_q
-TOP.riscv_top.cpu0.dummy0.instr_ready_i
+TOP.riscv_top.cpu0.idu0.branch_o
+TOP.riscv_top.cpu0.idu0.branch_cmd_o[2:0]
+@22
+TOP.riscv_top.cpu0.idu0.branch_lhs_o[31:0]
+TOP.riscv_top.cpu0.idu0.branch_rhs_o[31:0]
+@28
+TOP.riscv_top.cpu0.idu0.branch_d
+TOP.riscv_top.cpu0.idu0.branch_cmd_d[2:0]
+@22
+TOP.riscv_top.cpu0.idu0.branch_alu_lhs_d[31:0]
+TOP.riscv_top.cpu0.idu0.branch_alu_rhs_d[31:0]
 @200
--BRANCH
-@22
-TOP.riscv_top.cpu0.branch0.instr_i[31:0]
+-EXU
 @28
-TOP.riscv_top.cpu0.branch0.instr_ready_o
-TOP.riscv_top.cpu0.branch0.instr_valid_i
-TOP.riscv_top.cpu0.branch0.pc_valid_o
+TOP.riscv_top.cpu0.exu0.valid_i
+TOP.riscv_top.cpu0.exu0.valid_o
+TOP.riscv_top.cpu0.exu0.ready_i
+TOP.riscv_top.cpu0.exu0.ready_o
+@22
+TOP.riscv_top.cpu0.exu0.pc_i[29:0]
+TOP.riscv_top.cpu0.exu0.pc_o[29:0]
+TOP.riscv_top.cpu0.exu0.alu_cmd_i[3:0]
+TOP.riscv_top.cpu0.exu0.alu_lhs_i[31:0]
+TOP.riscv_top.cpu0.exu0.alu_rhs_i[31:0]
+TOP.riscv_top.cpu0.exu0.branch_addr_d[29:0]
+TOP.riscv_top.cpu0.exu0.branch_addr_o[29:0]
+@28
+TOP.riscv_top.cpu0.exu0.branch_cmd_i[2:0]
+TOP.riscv_top.cpu0.exu0.branch_i
+@22
+TOP.riscv_top.cpu0.exu0.branch_lhs_i[31:0]
+TOP.riscv_top.cpu0.exu0.branch_rhs_i[31:0]
+@28
+TOP.riscv_top.cpu0.exu0.branch_valid_d
+TOP.riscv_top.cpu0.exu0.branch_valid_o
+@22
+TOP.riscv_top.cpu0.exu0.hz_rd_addr_o[4:0]
+TOP.riscv_top.cpu0.exu0.rd_addr_i[4:0]
+TOP.riscv_top.cpu0.exu0.rd_addr_d[4:0]
+TOP.riscv_top.cpu0.exu0.rd_addr_o[4:0]
+TOP.riscv_top.cpu0.exu0.rd_data_d[31:0]
+TOP.riscv_top.cpu0.exu0.rd_data_o[31:0]
+TOP.riscv_top.cpu0.exu0.alu_res_d[31:0]
+@28
+TOP.riscv_top.cpu0.exu0.branch_res_d
+@200
+-WBU
+@28
+TOP.riscv_top.cpu0.wbu0.valid_i
+TOP.riscv_top.cpu0.wbu0.ready_o
+@22
+TOP.riscv_top.cpu0.wbu0.hz_rd_addr_o[4:0]
+TOP.riscv_top.cpu0.wbu0.pc_i[29:0]
+TOP.riscv_top.cpu0.wbu0.rd_addr_i[4:0]
+TOP.riscv_top.cpu0.wbu0.rd_data_i[31:0]
+TOP.riscv_top.cpu0.wbu0.rf_w_addr_o[4:0]
+TOP.riscv_top.cpu0.wbu0.rf_w_data_o[31:0]
+@28
+TOP.riscv_top.cpu0.wbu0.rf_w_enable_o
+@200
+-REGFILE
+@22
+TOP.riscv_top.cpu0.reg0.rd0_addr_i[4:0]
+TOP.riscv_top.cpu0.reg0.rd0_data_o[31:0]
+TOP.riscv_top.cpu0.reg0.rd1_addr_i[4:0]
+TOP.riscv_top.cpu0.reg0.rd1_data_o[31:0]
+TOP.riscv_top.cpu0.reg0.regs[0][31:0]
+TOP.riscv_top.cpu0.reg0.regs[1][31:0]
+TOP.riscv_top.cpu0.reg0.regs[2][31:0]
+TOP.riscv_top.cpu0.reg0.regs[3][31:0]
+TOP.riscv_top.cpu0.reg0.regs[4][31:0]
+TOP.riscv_top.cpu0.reg0.regs[5][31:0]
+TOP.riscv_top.cpu0.reg0.regs[6][31:0]
+TOP.riscv_top.cpu0.reg0.regs[7][31:0]
+TOP.riscv_top.cpu0.reg0.regs[8][31:0]
+TOP.riscv_top.cpu0.reg0.regs[9][31:0]
+TOP.riscv_top.cpu0.reg0.regs[10][31:0]
+TOP.riscv_top.cpu0.reg0.regs[11][31:0]
+TOP.riscv_top.cpu0.reg0.regs[12][31:0]
+TOP.riscv_top.cpu0.reg0.regs[13][31:0]
+TOP.riscv_top.cpu0.reg0.regs[14][31:0]
+TOP.riscv_top.cpu0.reg0.regs[15][31:0]
+TOP.riscv_top.cpu0.reg0.regs[16][31:0]
+TOP.riscv_top.cpu0.reg0.regs[17][31:0]
+TOP.riscv_top.cpu0.reg0.regs[18][31:0]
+TOP.riscv_top.cpu0.reg0.regs[19][31:0]
+TOP.riscv_top.cpu0.reg0.regs[20][31:0]
+TOP.riscv_top.cpu0.reg0.regs[21][31:0]
+TOP.riscv_top.cpu0.reg0.regs[22][31:0]
+TOP.riscv_top.cpu0.reg0.regs[23][31:0]
+TOP.riscv_top.cpu0.reg0.regs[24][31:0]
+TOP.riscv_top.cpu0.reg0.regs[25][31:0]
+TOP.riscv_top.cpu0.reg0.regs[26][31:0]
+TOP.riscv_top.cpu0.reg0.regs[27][31:0]
+TOP.riscv_top.cpu0.reg0.regs[28][31:0]
+TOP.riscv_top.cpu0.reg0.regs[29][31:0]
+TOP.riscv_top.cpu0.reg0.regs[30][31:0]
+TOP.riscv_top.cpu0.reg0.regs[31][31:0]
+TOP.riscv_top.cpu0.reg0.w_addr_i[4:0]
+TOP.riscv_top.cpu0.reg0.w_data_i[31:0]
+@28
+TOP.riscv_top.cpu0.reg0.w_enable_i
 [pattern_trace] 1
 [pattern_trace] 0
