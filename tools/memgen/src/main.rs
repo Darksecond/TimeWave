@@ -23,7 +23,7 @@ fn main() {
         for _ in 0..4-chunk.len() {
             write!(output, "00").unwrap();
         }
-        for byte in chunk {
+        for byte in chunk.iter().rev() {
             write!(output, "{:02X}", byte).unwrap();
         }
         write!(output, "\n").unwrap();

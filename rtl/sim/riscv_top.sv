@@ -25,7 +25,7 @@ assign leds_o = '0;
 
 rom
 #(
-  .Contents("test.mem"),
+  .Contents("bootrom.mem"),
   .Depth(4096) //16 Kilobytes
 ) rom0
 (
