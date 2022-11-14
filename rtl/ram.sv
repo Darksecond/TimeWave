@@ -1,11 +1,13 @@
 `default_nettype none
 
+/* verilator lint_off UNUSED */
+
 module ram
 #(
   parameter Depth = 0,
 
   localparam DataWidth = 32,
-  localparam AddrWidth = 32,
+  localparam AddrWidth = $clog2(Depth),
   localparam SelWidth = DataWidth / 8
 )
 (
@@ -40,7 +42,12 @@ always_ff @(posedge clk) begin
     end
   end
 
-  bus_data_s <= mem[bus_addr];
+  // Not strictly needed, but it cleans up the trace a bit for now
+  if(bus_stb) begin
+    bus_data_s <= mem[bus_addr];
+  end else begin
+    bus_data_s <= '0;
+  end
 
   bus_ack <= bus_stb;
 end

@@ -182,11 +182,13 @@ module riscv_idu
 
   output logic branch_o, // Perform a jump or branch
 
+  // mem signals
+  output logic [31:0] mem_data_o,
+  output logic mem_valid_o,
+
   // hazards
   output logic [4:0] hz_rs1_addr_o,
   output logic [4:0] hz_rs2_addr_o,
-
-  //TODO y'know, signals
 
   // Regfile interface
   output logic [4:0] rf_rd0_addr_o,
@@ -218,6 +220,9 @@ logic [4:0] rd_addr_d;
 
 logic branch_d;
 
+logic mem_valid_d;
+logic [31:0] mem_data_d;
+
 logic enable;
 
 assign ready_o = (!stall_i) && ready_i;
@@ -242,6 +247,9 @@ end
 
 always_comb begin
   branch_d = '0;
+
+  mem_valid_d = '0;
+  mem_data_d = rf_rd1_data_i;
 
   unique case (funct3)
     3'b000: branch_cmd_d = Eq;
@@ -322,6 +330,9 @@ always_ff @(posedge clk_i) begin
     rd_addr_o <= rd_addr_d;
 
     pc_o <= pc_i;
+
+    mem_valid_o <= mem_valid_d;
+    mem_data_o <= mem_data_d;
   end
 end
 
@@ -364,6 +375,10 @@ module riscv_exu
 
   input wire logic branch_i,
 
+  // mem signals
+  input wire logic [31:0] mem_data_i,
+  input wire logic mem_valid_i,
+
   // MEM interface
   input wire logic ready_i,
   output logic valid_o,
@@ -371,6 +386,10 @@ module riscv_exu
 
   output logic [4:0] rd_addr_o,
   output logic [31:0] rd_data_o,
+
+  // mem signals
+  output logic [31:0] mem_data_o,
+  output logic mem_valid_o,
 
   // Branch (-> IFU)
   output logic branch_valid_o,
@@ -441,8 +460,69 @@ always_ff @(posedge clk_i) begin
 
     rd_addr_o <= rd_addr_d;
     rd_data_o <= rd_data_d;
+
+    mem_data_o <= mem_data_i;
+    mem_valid_o <= mem_valid_i;
   end
 end
+
+endmodule
+
+module riscv_lsu
+(
+  input wire logic clk_i,
+  input wire logic reset_ni,
+
+  // EXU interface
+  output logic ready_o,
+  input wire logic valid_i,
+  input wire logic [29:0] pc_i,
+
+  input wire logic [4:0] rd_addr_i,
+  input wire logic [31:0] rd_data_i,
+  
+  // mem signals
+  input wire logic [31:0] mem_data_i,
+  input wire logic mem_valid_i,
+
+  // WBU interface
+  input wire logic ready_i,
+  output logic valid_o,
+  output logic [29:0] pc_o,
+
+  output logic [4:0] rd_addr_o,
+  output logic [31:0] rd_data_o,
+
+  // Master port
+  input wire logic wb_ack_i,
+  input wire logic wb_stall_i,
+  input wire logic wb_err_i,
+  input wire logic [31:0] wb_data_i,
+  output logic [31:0] wb_data_o,
+  output logic [29:0] wb_addr_o,
+  output logic [3:0] wb_sel_o,
+  output logic wb_cyc_o,
+  output logic wb_stb_o,
+  output logic wb_we_o,
+
+  // Hazards
+  output logic [4:0] hz_rd_addr_o
+);
+
+assign ready_o = ready_i;
+assign valid_o = valid_i;
+assign pc_o = pc_i;
+assign rd_addr_o = rd_addr_i;
+assign rd_data_o = rd_data_i;
+
+assign wb_cyc_o = '0;
+assign wb_stb_o = '0;
+assign wb_sel_o = '0;
+assign wb_we_o = '0;
+assign wb_data_o = '0;
+assign wb_addr_o = '0;
+
+assign hz_rd_addr_o = '0;
 
 endmodule
 
@@ -514,7 +594,19 @@ module riscv
   output logic [3:0] wb_i_sel_o,
   output logic wb_i_cyc_o,
   output logic wb_i_stb_o,
-  output logic wb_i_we_o
+  output logic wb_i_we_o,
+
+  // Data Port
+  input wire logic wb_d_ack_i,
+  input wire logic wb_d_stall_i,
+  input wire logic wb_d_err_i,
+  input wire logic [31:0] wb_d_data_i,
+  output logic [31:0] wb_d_data_o,
+  output logic [29:0] wb_d_addr_o,
+  output logic [3:0] wb_d_sel_o,
+  output logic wb_d_cyc_o,
+  output logic wb_d_stb_o,
+  output logic wb_d_we_o
 );
 
 logic if2id_ready;
@@ -541,18 +633,28 @@ branch_alu_cmd_t id2ex_branch_cmd;
 logic id2ex_branch;
 logic id2ex_ready;
 logic id2ex_valid;
+logic id2ex_mem_valid;
+logic [31:0] id2ex_mem_data;
 
 logic ex2if_branch_valid;
 logic [29:0] ex2if_branch_addr;
 
-logic [4:0] hz_id_rs1, hz_id_rs2, hz_ex_rd, hz_wb_rd;
+logic [4:0] hz_id_rs1, hz_id_rs2, hz_ex_rd, hz_ls_rd, hz_wb_rd;
 logic hz_stall;
 
-logic ex2wb_ready;
-logic ex2wb_valid;
-logic [29:0] ex2wb_pc;
-logic [4:0] ex2wb_rd_addr;
-logic [31:0] ex2wb_rd_data;
+logic ex2ls_ready;
+logic ex2ls_valid;
+logic [29:0] ex2ls_pc;
+logic [4:0] ex2ls_rd_addr;
+logic [31:0] ex2ls_rd_data;
+logic ex2ls_mem_valid;
+logic [31:0] ex2ls_mem_data;
+
+logic ls2wb_ready;
+logic ls2wb_valid;
+logic [29:0] ls2wb_pc;
+logic [4:0] ls2wb_rd_addr;
+logic [31:0] ls2wb_rd_data;
 
 riscv_regfile reg0
 (
@@ -577,7 +679,7 @@ riscv_hazards hazard0
   .id_rs2_i(hz_id_rs2), // Decode
 
   .ex_rd_i(hz_ex_rd), // Execute
-  .ls_rd_i('0), // Load-Store
+  .ls_rd_i(hz_ls_rd), // Load-Store
   .wb_rd_i(hz_wb_rd), // Writeback
 
   .stall_o(hz_stall)
@@ -642,6 +744,10 @@ riscv_idu idu0
 
   .branch_o(id2ex_branch), // Perform a jump or branch
 
+  // mem
+  .mem_valid_o(id2ex_mem_valid),
+  .mem_data_o(id2ex_mem_data),
+
   // hazards
   .hz_rs1_addr_o(hz_id_rs1),
   .hz_rs2_addr_o(hz_id_rs2),
@@ -676,13 +782,21 @@ riscv_exu exu0
 
   .branch_i(id2ex_branch),
 
-  // MEM interface
-  .ready_i(ex2wb_ready),
-  .valid_o(ex2wb_valid),
-  .pc_o(ex2wb_pc),
+  // mem
+  .mem_valid_i(id2ex_mem_valid),
+  .mem_data_i(id2ex_mem_data),
 
-  .rd_addr_o(ex2wb_rd_addr),
-  .rd_data_o(ex2wb_rd_data),
+  // MEM interface
+  .ready_i(ex2ls_ready),
+  .valid_o(ex2ls_valid),
+  .pc_o(ex2ls_pc),
+
+  .rd_addr_o(ex2ls_rd_addr),
+  .rd_data_o(ex2ls_rd_data),
+
+  // mem
+  .mem_valid_o(ex2ls_mem_valid),
+  .mem_data_o(ex2ls_mem_data),
 
   // Branch (-> IFU)
   .branch_valid_o(ex2if_branch_valid),
@@ -692,18 +806,59 @@ riscv_exu exu0
   .hz_rd_addr_o(hz_ex_rd)
 );
 
+riscv_lsu lsu0
+(
+  .clk_i,
+  .reset_ni,
+
+  // EXU interface
+  .ready_o(ex2ls_ready),
+  .valid_i(ex2ls_valid),
+  .pc_i(ex2ls_pc),
+
+  .rd_addr_i(ex2ls_rd_addr),
+  .rd_data_i(ex2ls_rd_data),
+
+  // mem
+  .mem_valid_i(ex2ls_mem_valid),
+  .mem_data_i(ex2ls_mem_data),
+
+  // WBU interface
+  .ready_i(ls2wb_ready),
+  .valid_o(ls2wb_valid),
+  .pc_o(ls2wb_pc),
+
+  .rd_addr_o(ls2wb_rd_addr),
+  .rd_data_o(ls2wb_rd_data),
+
+  // Bus master
+  .wb_ack_i(wb_d_ack_i),
+  .wb_stall_i(wb_d_stall_i),
+  .wb_err_i(wb_d_err_i),
+  .wb_data_i(wb_d_data_i),
+  .wb_data_o(wb_d_data_o),
+  .wb_addr_o(wb_d_addr_o),
+  .wb_sel_o(wb_d_sel_o),
+  .wb_cyc_o(wb_d_cyc_o),
+  .wb_stb_o(wb_d_stb_o),
+  .wb_we_o(wb_d_we_o),
+
+  // Hazards
+  .hz_rd_addr_o(hz_ls_rd)
+);
+
 riscv_wbu wbu0
 (
   .clk_i,
   .reset_ni,
 
   // MEM interface
-  .ready_o(ex2wb_ready),
-  .valid_i(ex2wb_valid),
-  .pc_i(ex2wb_pc),
+  .ready_o(ls2wb_ready),
+  .valid_i(ls2wb_valid),
+  .pc_i(ls2wb_pc),
 
-  .rd_addr_i(ex2wb_rd_addr),
-  .rd_data_i(ex2wb_rd_data),
+  .rd_addr_i(ls2wb_rd_addr),
+  .rd_data_i(ls2wb_rd_data),
 
   // Regfile
   .rf_w_enable_o(rf_w_enable),
