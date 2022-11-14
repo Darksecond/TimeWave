@@ -312,6 +312,13 @@ always_comb begin
     hz_rs1_addr_o = '0;
     hz_rs2_addr_o = '0;
   end
+  7'b1100011: begin // BEQ/BNE/BLT/BGE/BLTU/BGEU
+    branch_d = '1;
+
+    alu_cmd_d = Add;
+    alu_lhs_d = {pc_i, 2'b00};
+    alu_rhs_d = b_imm;
+  end
   default: ; // No current error case
   endcase
 end
