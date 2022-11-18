@@ -144,7 +144,7 @@ always_ff @(posedge clk_i) begin
   end
 end
 
-endmodule;
+endmodule
 
 
 // Instruction Decode Unit
@@ -393,12 +393,12 @@ module riscv_exu
   input wire logic [4:0] rd_addr_i,
 
   // alu
-  input alu_cmd_t alu_cmd_i,
+  input wire alu_cmd_t alu_cmd_i,
   input wire logic [31:0] alu_lhs_i,
   input wire logic [31:0] alu_rhs_i,
 
   // branch
-  input branch_alu_cmd_t branch_cmd_i,
+  input wire branch_alu_cmd_t branch_cmd_i,
   input wire logic [31:0] branch_lhs_i,
   input wire logic [31:0] branch_rhs_i,
 
@@ -592,7 +592,10 @@ always_comb begin
     store_byte_select = 4'b1000;
     store_byte_data = {mem_data_i[7:0], 24'b0};
   end
-  default: ;
+  default: begin
+    store_byte_select = 4'b0000;
+    store_byte_data = 32'b0;
+  end
   endcase
 
   unique case(rd_data_i[1:0])
@@ -604,7 +607,10 @@ always_comb begin
     store_short_select = 4'b1100;
     store_short_data = {mem_data_i[15:0], 16'b0};
   end
-  default: ;
+  default: begin
+    store_short_select = 4'b0000;
+    store_short_data = 32'b0;
+  end
   endcase
 
   unique case(mem_width_q[1:0]) // MSB is for 'U', not used here
@@ -620,7 +626,10 @@ always_comb begin
     wb_sel_d = 4'b1111;
     wb_data_d = mem_data_i;
   end
-  default: ;
+  default: begin
+    wb_sel_d = 4'b0000;
+    wb_data_d = 32'b0;
+  end
   endcase
 end
 
@@ -638,7 +647,9 @@ always_comb begin
   2'b11: begin
     load_byte_data = {24'b0, wb_data_i[31:24]};
   end
-  default: ;
+  default: begin
+    load_byte_data = 32'b0;
+  end
   endcase
 
   unique case(mem_offset_q)
@@ -648,7 +659,9 @@ always_comb begin
   2'b10: begin
     load_short_data = {16'b0, wb_data_i[31:16]};
   end
-  default: ;
+  default: begin
+    load_short_data = 32'b0;
+  end
   endcase
 
   unique case(mem_width_q) // MSB is for 'U', not used here
@@ -667,7 +680,9 @@ always_comb begin
   3'b101: begin // 'HU'
     rd_data_d = load_short_data;
   end
-  default: ;
+  default: begin
+    rd_data_d = 32'b0;
+  end
   endcase
 end
 
@@ -697,7 +712,6 @@ always_ff @(posedge clk_i) begin
   if(wb_cyc_o && wb_ack_i) begin
     wb_cyc_o <= 1'b0;
     valid_o <= 1'b1;
-    rd_data_o <= rd_data_d;
   end
 end
 
@@ -716,6 +730,10 @@ always_ff @(posedge clk_i) begin
     wb_addr_o <= rd_data_i[31:2];
     wb_data_o <= wb_data_d;
     wb_sel_o <= wb_sel_d;
+  end
+
+  if(wb_cyc_o && wb_ack_i) begin
+    rd_data_o <= rd_data_d;
   end
 end
 

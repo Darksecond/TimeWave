@@ -17,7 +17,7 @@ typedef enum logic [3:0] {
 
 module alu
 (
-  input alu_cmd_t cmd_i,
+  input wire alu_cmd_t cmd_i,
   input wire logic [31:0] lhs_i,
   input wire logic [31:0] rhs_i,
   output logic [31:0] res_o
@@ -56,7 +56,7 @@ typedef enum logic [2:0] {
 
 module branch_alu
 (
-  input branch_alu_cmd_t cmd_i,
+  input wire branch_alu_cmd_t cmd_i,
   input wire logic [31:0] lhs_i,
   input wire logic [31:0] rhs_i,
   output logic res_o
