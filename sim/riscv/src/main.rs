@@ -40,11 +40,17 @@ impl Riscv {
 }
 
 fn main() {
+    let mut led = 0;
     let mut riscv = Riscv::new();
 
     riscv.reset();
 
-    for _ in 0..1000 {
+    for _ in 0..10000 {
         riscv.cycle();
+
+        if led != riscv.sim.leds_o() {
+            println!("0b{:08b}", riscv.sim.leds_o());
+        }
+        led = riscv.sim.leds_o();
     }
 }

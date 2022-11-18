@@ -1,59 +1,61 @@
 `default_nettype none
 
+/* verilator lint_off UNUSED */
+
 module wb_multiplexer
 #(
   parameter Count = 0,
   parameter MaskWidth = 0,
 
   parameter DataWidth = 32,
-  parameter AddrWidth = 32,
+  parameter AddrWidth = 30,
 
   localparam SelWidth = DataWidth / 8,
   localparam TagWidth = $clog2(Count)
 )
 (
-  input wire logic clk,
-  input wire logic reset_n,
+  input wire logic clk_i,
+  input wire logic reset_ni,
 
   // Master
-  output logic [DataWidth-1:0] m_data_s,
-  output logic m_ack,
-  output logic m_stall,
-  output logic m_err,
+  output logic [DataWidth-1:0] wb_m_data_o,
+  output logic wb_m_ack_o,
+  output logic wb_m_stall_o,
+  output logic wb_m_err_o,
 
-  input wire logic [DataWidth-1:0] m_data_m,
-  input wire logic [AddrWidth-1:0] m_addr,
-  input wire logic [SelWidth-1:0] m_sel,
-  input wire logic m_cyc,
-  input wire logic m_stb,
-  input wire logic m_we,
+  input wire logic [DataWidth-1:0] wb_m_data_i,
+  input wire logic [AddrWidth-1:0] wb_m_addr_i,
+  input wire logic [SelWidth-1:0] wb_m_sel_i,
+  input wire logic wb_m_cyc_i,
+  input wire logic wb_m_stb_i,
+  input wire logic wb_m_we_i,
 
   // Slaves
-  input wire logic [DataWidth-1:0] s_data_s [Count],
-  input wire logic s_ack [Count],
-  input wire logic s_stall [Count],
-  input wire logic s_err [Count],
+  input wire logic [DataWidth-1:0] wb_s_data_i [Count],
+  input wire logic wb_s_ack_i [Count],
+  input wire logic wb_s_stall_i [Count],
+  input wire logic wb_s_err_i [Count],
 
-  output logic [DataWidth-1:0] s_data_m [Count],
-  output logic [AddrWidth-1:0] s_addr [Count],
-  output logic [SelWidth-1:0] s_sel [Count],
-  output logic s_cyc [Count],
-  output logic s_stb [Count],
-  output logic s_we [Count]
+  output logic [DataWidth-1:0] wb_s_data_o [Count],
+  output logic [AddrWidth-1:0] wb_s_addr_o [Count],
+  output logic [SelWidth-1:0] wb_s_sel_o [Count],
+  output logic wb_s_cyc_o [Count],
+  output logic wb_s_stb_o [Count],
+  output logic wb_s_we_o [Count]
 );
 
 logic [AddrWidth-1:0] addr_masked;
 logic [TagWidth-1:0] tag;
 
-logic [AddrWidth-1:0] addr;
-logic [AddrWidth-1:0] addr_reg;
+logic [AddrWidth-1:0] addr_d;
+logic [AddrWidth-1:0] addr_q;
 
 always_comb begin
-  addr = m_stb ? m_addr : addr_reg;
+  addr_d = wb_m_stb_i ? wb_m_addr_i : addr_q;
 end
 
-always_ff @(posedge clk) begin
-  addr_reg <= addr;
+always_ff @(posedge clk_i) begin
+  addr_q <= addr_d;
 end
 
 bus_decoder
@@ -63,26 +65,26 @@ bus_decoder
   .AddrWidth(AddrWidth)
 ) decoder0
 (
-  .addr(addr),
-  .addr_masked,
-  .tag
+  .addr_i(addr_d),
+  .addr_masked_o(addr_masked),
+  .tag_o(tag)
 );
 
 always_comb begin
-  m_data_s = s_data_s[tag];
-  m_ack = s_ack[tag];
-  m_stall = s_stall[tag];
-  m_err = s_err[tag];
+  wb_m_data_o = wb_s_data_i[tag];
+  wb_m_ack_o = wb_s_ack_i[tag];
+  wb_m_stall_o = wb_s_stall_i[tag];
+  wb_m_err_o = wb_s_err_i[tag];
 end
 
 for(genvar i = 0; i < Count; i += 1) begin
-  assign s_we[i] = m_we;
-  assign s_addr[i] = addr_masked;
-  assign s_data_m[i] = m_data_m;
-  assign s_sel[i] = m_sel;
-  assign s_cyc[i] = tag == i ? m_cyc : '0;
-  assign s_stb[i] = tag == i ? m_stb : '0;
-  assign s_we[i] = m_we;
+  assign wb_s_we_o[i] = wb_m_we_i;
+  assign wb_s_addr_o[i] = addr_masked;
+  assign wb_s_data_o[i] = wb_m_data_i;
+  assign wb_s_sel_o[i] = wb_m_sel_i;
+  assign wb_s_cyc_o[i] = tag == i ? wb_m_cyc_i : '0; //TODO Add a 'slave_selected' signal to merge these two `tag == i`.
+  assign wb_s_stb_o[i] = tag == i ? wb_m_stb_i : '0;
+  assign wb_s_we_o[i] = wb_m_we_i;
 end
 
 endmodule

@@ -2,7 +2,7 @@
 .global _entry
 
 _entry:
-j memtest
+j led
 
 lui x1, %hi(0xDEADBEEF)
 add x1, x1, %lo(0xDEADBEEF)
@@ -37,3 +37,17 @@ lbu x3, 5(x2)
 
 // Loop
 j memtest
+
+led:
+lui x1, %hi(0x10000000)
+add x1, x1, %lo(0x10000000)
+
+lui x2, %hi(0xFF)
+add x2, x2, %lo(0xFF)
+
+led_loop:
+sw x2, 0(x1)
+
+addi x2, x2, -1
+
+j led_loop

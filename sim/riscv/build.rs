@@ -8,6 +8,9 @@ fn main() {
         .file("../../rtl/riscv/riscv.sv")
         .file("../../rtl/rom.sv")
         .file("../../rtl/ram.sv")
+        .file("../../rtl/led_interface.sv")
+        .file("../../rtl/wb_multiplexer.sv")
+        .file("../../rtl/bus_decoder.sv")
         .build();
 
     Driver::new(model)

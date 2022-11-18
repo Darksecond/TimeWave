@@ -33,7 +33,79 @@ logic ram_cyc;
 logic ram_stb;
 logic ram_we;
 
-assign leds_o = '0;
+// Led
+logic [31:0] led_data_s;
+logic led_ack;
+logic led_stall;
+logic led_err;
+logic [31:0] led_data_m;
+logic [29:0] led_addr;
+logic [3:0] led_sel;
+logic led_cyc;
+logic led_stb;
+logic led_we;
+
+// Mux
+logic [31:0] mux_data_s;
+logic mux_ack;
+logic mux_stall;
+logic mux_err;
+logic [31:0] mux_data_m;
+logic [29:0] mux_addr;
+logic [3:0] mux_sel;
+logic mux_cyc;
+logic mux_stb;
+logic mux_we;
+
+wb_multiplexer
+#(
+  .Count(2),
+  .MaskWidth(4)
+) mux0
+(
+  .clk_i,
+  .reset_ni,
+
+  .wb_m_data_o(mux_data_s),
+  .wb_m_ack_o(mux_ack),
+  .wb_m_stall_o(mux_stall),
+  .wb_m_err_o(mux_err),
+  .wb_m_data_i(mux_data_m),
+  .wb_m_addr_i(mux_addr),
+  .wb_m_sel_i(mux_sel),
+  .wb_m_cyc_i(mux_cyc),
+  .wb_m_stb_i(mux_stb),
+  .wb_m_we_i(mux_we),
+
+  .wb_s_ack_i('{ram_ack, led_ack}),
+  .wb_s_stall_i('{ram_stall, led_stall}),
+  .wb_s_err_i('{ram_err, led_err}),
+  .wb_s_data_o('{ram_data_m, led_data_m}),
+  .wb_s_data_i('{ram_data_s, led_data_s}),
+  .wb_s_addr_o('{ram_addr, led_addr}),
+  .wb_s_sel_o('{ram_sel, led_sel}),
+  .wb_s_cyc_o('{ram_cyc, led_cyc}),
+  .wb_s_stb_o('{ram_stb, led_stb}),
+  .wb_s_we_o('{ram_we, led_we})
+);
+
+led_interface led0
+(
+  .clk_i,
+  .reset_ni,
+  .leds_o,
+
+  .wb_data_o(led_data_s),
+  .wb_ack_o(led_ack),
+  .wb_stall_o(led_stall),
+  .wb_err_o(led_err),
+  .wb_data_i(led_data_m),
+  .wb_addr_i(led_addr),
+  .wb_sel_i(led_sel),
+  .wb_cyc_i(led_cyc),
+  .wb_stb_i(led_stb),
+  .wb_we_i(led_we)
+);
 
 rom
 #(
@@ -90,16 +162,16 @@ riscv cpu0
   .wb_i_stb_o(rom_stb),
   .wb_i_we_o(rom_we),
 
-  .wb_d_data_i(ram_data_s),
-  .wb_d_ack_i(ram_ack),
-  .wb_d_stall_i(ram_stall),
-  .wb_d_err_i(ram_err),
-  .wb_d_data_o(ram_data_m),
-  .wb_d_addr_o(ram_addr),
-  .wb_d_sel_o(ram_sel),
-  .wb_d_cyc_o(ram_cyc),
-  .wb_d_stb_o(ram_stb),
-  .wb_d_we_o(ram_we)
+  .wb_d_data_i(mux_data_s),
+  .wb_d_ack_i(mux_ack),
+  .wb_d_stall_i(mux_stall),
+  .wb_d_err_i(mux_err),
+  .wb_d_data_o(mux_data_m),
+  .wb_d_addr_o(mux_addr),
+  .wb_d_sel_o(mux_sel),
+  .wb_d_cyc_o(mux_cyc),
+  .wb_d_stb_o(mux_stb),
+  .wb_d_we_o(mux_we)
 );
 
 endmodule
