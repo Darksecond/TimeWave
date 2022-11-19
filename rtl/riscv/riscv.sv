@@ -188,6 +188,10 @@ module riscv_idu
   output logic mem_we_o,
   output logic [2:0] mem_width_o,
 
+  //csr signals
+  output logic csr_valid_o,
+  output logic [11:0] csr_o,
+
   // hazards
   output logic [4:0] hz_rs1_addr_o,
   output logic [4:0] hz_rs2_addr_o,
@@ -227,6 +231,9 @@ logic [31:0] mem_data_d;
 logic mem_we_d;
 logic [2:0] mem_width_d;
 
+logic csr_valid_d;
+logic [11:0] csr_d;
+
 logic enable;
 
 assign ready_o = (!stall_i) && ready_i;
@@ -256,6 +263,9 @@ always_comb begin
   mem_data_d = rf_rd1_data_i;
   mem_width_d = funct3;
   mem_we_d = 0;
+
+  csr_valid_d = '0;
+  csr_d = '0;
 
   unique case (funct3)
     3'b000: branch_cmd_d = Eq;
@@ -362,9 +372,21 @@ always_comb begin
     rd_addr_d = '0;
   end
   7'b1110011: begin // ECALL, EBREAK (No-Op)
-    hz_rs1_addr_o = '0;
-    hz_rs2_addr_o = '0;
-    rd_addr_d = '0;
+    unique case(funct3)
+    3'b010: begin // CsrRs
+      //TODO We currently only support reading CSRs so rs1 and rs2 can be safely ignored.
+      hz_rs1_addr_o = '0;
+      hz_rs2_addr_o = '0;
+
+      csr_valid_d = '1;
+      csr_d = i_imm;
+    end
+    default: begin
+      hz_rs1_addr_o = '0;
+      hz_rs2_addr_o = '0;
+      rd_addr_d = '0;
+    end
+    endcase
   end
   default: ; // No current error case
   endcase
@@ -389,6 +411,9 @@ always_ff @(posedge clk_i) begin
     mem_data_o <= mem_data_d;
     mem_we_o <= mem_we_d;
     mem_width_o <= mem_width_d;
+
+    csr_valid_o <= csr_valid_d;
+    csr_o <= csr_d;
   end
 end
 
@@ -404,6 +429,38 @@ always_ff @(posedge clk_i) begin
   if((!reset_ni) || clear_i) begin
     valid_o <= '0;
   end
+end
+
+endmodule
+
+module riscv_csr
+(
+  input wire logic clk_i,
+  input wire logic reset_ni,
+
+  input wire logic [11:0] csr_i,
+
+  output logic [31:0] data_o
+);
+
+logic [63:0] cycle_q;
+
+initial cycle_q = '0;
+
+always_ff @(posedge clk_i) begin
+  if(!reset_ni) begin
+    cycle_q <= 64'b0;
+  end else begin
+    cycle_q <= cycle_q + 64'b1;
+  end
+end
+
+always_comb begin
+  case(csr_i)
+    12'hC00: data_o = cycle_q[31:0];
+    12'hC80: data_o = cycle_q[63:32];
+    default: data_o = '0;
+  endcase
 end
 
 endmodule
@@ -437,6 +494,10 @@ module riscv_exu
   input wire logic mem_we_i,
   input wire logic [2:0] mem_width_i,
 
+  //csr signals
+  input wire logic csr_valid_i,
+  input wire logic [11:0] csr_i,
+
   // MEM interface
   input wire logic ready_i,
   output logic valid_o,
@@ -468,11 +529,21 @@ logic branch_valid_d;
 logic [4:0] rd_addr_d;
 logic [31:0] rd_data_d;
 
+logic [31:0] csr_d;
+
 assign ready_o = ready_i;
 
 assign hz_rd_addr_o = valid_i ? rd_addr_i: '0;
 
 initial valid_o = '0;
+
+riscv_csr csr0
+(
+  .clk_i,
+  .reset_ni,
+  .csr_i,
+  .data_o(csr_d)
+);
 
 alu alu0
 (
@@ -494,7 +565,9 @@ always_comb begin
   branch_valid_d = branch_res_d && branch_i && valid_i;
   branch_addr_d = alu_res_d[31:2];
   rd_addr_d = rd_addr_i;
+
   rd_data_d = branch_i ? ({pc_i, 2'b00} + 32'h4) : alu_res_d;
+  rd_data_d = csr_valid_i ? csr_d : rd_data_d;
 end
 
 always_ff @(posedge clk_i) begin
