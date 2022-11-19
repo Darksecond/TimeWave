@@ -302,6 +302,14 @@ always_comb begin
     hz_rs1_addr_o = '0;
     hz_rs2_addr_o = '0;
   end
+  7'b0010111: begin // AUIPC
+    alu_lhs_d = u_imm;
+    alu_rhs_d = {pc_i, 2'b00};
+    alu_cmd_d = Add;
+
+    hz_rs1_addr_o = '0;
+    hz_rs2_addr_o = '0;
+  end
   7'b0010011: begin // ADDI
     if (funct7 == 7'b0100000) begin
       alu_cmd_d = Sra; // Detect SRAI
