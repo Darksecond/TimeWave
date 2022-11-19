@@ -345,12 +345,25 @@ always_comb begin
     hz_rs1_addr_o = '0;
     hz_rs2_addr_o = '0;
   end
+  7'b1100111: begin // JALR
+    branch_alu_lhs_d = '0;
+    branch_alu_rhs_d = '0;
+    branch_cmd_d = Eq;
+    branch_d = '1;
+
+    alu_cmd_d = Add;
+    alu_rhs_d = i_imm;
+
+    hz_rs2_addr_o = '0;
+  end
   7'b1100011: begin // BEQ/BNE/BLT/BGE/BLTU/BGEU
     branch_d = '1;
 
     alu_cmd_d = Add;
     alu_lhs_d = {pc_i, 2'b00};
     alu_rhs_d = b_imm;
+
+    rd_addr_d = '0;
   end
   7'b0100011: begin // SW,SH,SB
     mem_valid_d = 1'b1;
@@ -379,7 +392,7 @@ always_comb begin
       hz_rs2_addr_o = '0;
 
       csr_valid_d = '1;
-      csr_d = i_imm;
+      csr_d = instr_i[31:20];
     end
     default: begin
       hz_rs1_addr_o = '0;
@@ -950,6 +963,8 @@ logic id2ex_mem_valid;
 logic [31:0] id2ex_mem_data;
 logic id2ex_mem_we;
 logic [2:0] id2ex_mem_width;
+logic id2ex_csr_valid;
+logic [11:0] id2ex_csr;
 
 logic ex2if_branch_valid;
 logic [29:0] ex2if_branch_addr;
@@ -1067,6 +1082,10 @@ riscv_idu idu0
   .mem_we_o(id2ex_mem_we),
   .mem_width_o(id2ex_mem_width),
 
+  // csr
+  .csr_valid_o(id2ex_csr_valid),
+  .csr_o(id2ex_csr),
+
   // hazards
   .hz_rs1_addr_o(hz_id_rs1),
   .hz_rs2_addr_o(hz_id_rs2),
@@ -1106,6 +1125,10 @@ riscv_exu exu0
   .mem_data_i(id2ex_mem_data),
   .mem_we_i(id2ex_mem_we),
   .mem_width_i(id2ex_mem_width),
+
+  // csr
+  .csr_valid_i(id2ex_csr_valid),
+  .csr_i(id2ex_csr),
 
   // MEM interface
   .ready_i(ex2ls_ready),

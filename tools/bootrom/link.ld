@@ -1,7 +1,7 @@
 OUTPUT_ARCH("riscv")
 ENTRY(_start)
 
-PROVIDE(_max_program_size = 16m);
+PROVIDE(_max_program_size = 64k);
 
 MEMORY
 {

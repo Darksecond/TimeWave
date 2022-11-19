@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.107 (w)1999-2020 BSI
-[*] Sun Nov 13 13:53:26 2022
+[*] Sat Nov 19 15:13:41 2022
 [*]
 [dumpfile] "/Users/proto/Development/timewave/sim/riscv/trace.vcd"
-[dumpfile_mtime] "Sun Nov 13 13:53:04 2022"
-[dumpfile_size] 39663
+[dumpfile_mtime] "Sat Nov 19 15:10:46 2022"
+[dumpfile_size] 4260878
 [savefile] "/Users/proto/Development/timewave/sim/riscv/trace.gtkw"
-[timestart] 10
+[timestart] 228
 [size] 2560 1308
 [pos] -1 -1
-*-1.899056 21 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-1.899056 234 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.riscv_top.
 [treeopen] TOP.riscv_top.cpu0.
@@ -19,7 +19,7 @@
 [sst_width] 193
 [signals_width] 219
 [sst_expanded] 1
-[sst_vpaned_height] 668
+[sst_vpaned_height] 527
 @28
 TOP.clk_i
 TOP.reset_ni
@@ -83,9 +83,8 @@ TOP.riscv_top.cpu0.ifu0.pc_valid_i
 TOP.riscv_top.cpu0.ifu0.reset_ni
 @200
 -IDU
-@29
-TOP.riscv_top.cpu0.idu0.stall_i
 @28
+TOP.riscv_top.cpu0.idu0.stall_i
 TOP.riscv_top.cpu0.idu0.clear_i
 TOP.riscv_top.cpu0.idu0.valid_i
 TOP.riscv_top.cpu0.idu0.valid_o
@@ -142,6 +141,11 @@ TOP.riscv_top.cpu0.idu0.branch_cmd_d[2:0]
 @22
 TOP.riscv_top.cpu0.idu0.branch_alu_lhs_d[31:0]
 TOP.riscv_top.cpu0.idu0.branch_alu_rhs_d[31:0]
+TOP.riscv_top.cpu0.idu0.csr_d[11:0]
+TOP.riscv_top.cpu0.idu0.csr_o[11:0]
+@28
+TOP.riscv_top.cpu0.idu0.csr_valid_d
+TOP.riscv_top.cpu0.idu0.csr_valid_o
 @200
 -EXU
 @28
@@ -176,6 +180,11 @@ TOP.riscv_top.cpu0.exu0.rd_data_o[31:0]
 TOP.riscv_top.cpu0.exu0.alu_res_d[31:0]
 @28
 TOP.riscv_top.cpu0.exu0.branch_res_d
+@22
+TOP.riscv_top.cpu0.exu0.csr_d[31:0]
+TOP.riscv_top.cpu0.exu0.csr_i[11:0]
+@28
+TOP.riscv_top.cpu0.exu0.csr_valid_i
 @200
 -WBU
 @28
@@ -207,7 +216,9 @@ TOP.riscv_top.cpu0.reg0.regs[6][31:0]
 TOP.riscv_top.cpu0.reg0.regs[7][31:0]
 TOP.riscv_top.cpu0.reg0.regs[8][31:0]
 TOP.riscv_top.cpu0.reg0.regs[9][31:0]
+@23
 TOP.riscv_top.cpu0.reg0.regs[10][31:0]
+@22
 TOP.riscv_top.cpu0.reg0.regs[11][31:0]
 TOP.riscv_top.cpu0.reg0.regs[12][31:0]
 TOP.riscv_top.cpu0.reg0.regs[13][31:0]
