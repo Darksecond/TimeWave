@@ -303,7 +303,16 @@ always_comb begin
     hz_rs2_addr_o = '0;
   end
   7'b0010011: begin // ADDI
+    if (funct7 == 7'b0100000) begin
+      alu_cmd_d = Sra; // Detect SRAI
+    end
+
     alu_rhs_d = i_imm;
+  end
+  7'b0110011: begin // ADD, SUB, etc
+    if (funct7 == 7'b0100000) begin
+      alu_cmd_d = Sub; // Detect SUB
+    end
   end
   7'b1101111: begin // JAL
     branch_alu_lhs_d = '0;
@@ -338,6 +347,16 @@ always_comb begin
 
     alu_cmd_d = Add;
     alu_rhs_d = i_imm;
+  end
+  7'b0001111: begin // FENCE (No-Op)
+    hz_rs1_addr_o = '0;
+    hz_rs2_addr_o = '0;
+    rd_addr_d = '0;
+  end
+  7'b1110011: begin // ECALL, EBREAK (No-Op)
+    hz_rs1_addr_o = '0;
+    hz_rs2_addr_o = '0;
+    rd_addr_d = '0;
   end
   default: ; // No current error case
   endcase
