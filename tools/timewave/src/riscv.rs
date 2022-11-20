@@ -2,7 +2,7 @@
 /// CPU speed of `100MHz`.
 pub const SPEED: u64 = 100_000_000;
 
-//pub const SPEED: u64 = 1000;
+//pub const SPEED: u64 = 1000; // Hack for verilator
 
 /// Get current cycle count.
 /// This uses the `RDCYCLE` and `RDCYCLEH` CSR.

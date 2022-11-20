@@ -1,4 +1,5 @@
 verilator::bindings!();
+use verilator::{Model, Traceable};
 
 struct Riscv {
     vcd: verilator::VcdFile,

@@ -1,5 +1,5 @@
 fn main() {
-    use verilator::{Verilator, Driver};
+    use verilator::build::{Verilator, Driver};
 
     let model = Verilator::new("riscv_top")
         .with_tracing()
@@ -25,5 +25,5 @@ fn main() {
         .wire(1, "clk_i")
         .wire(1, "reset_ni")
         .wire(4, "leds_o")
-        .build();
+        .build("Sim");
 }
