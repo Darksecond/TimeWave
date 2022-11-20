@@ -3,12 +3,5 @@
 version = 3
 
 [[package]]
-name = "bootrom"
-version = "0.1.0"
-dependencies = [
- "timewave",
-]
-
-[[package]]
 name = "timewave"
 version = "0.1.0"

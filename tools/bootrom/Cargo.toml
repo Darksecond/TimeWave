@@ -4,8 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [profile.release]
-opt-level = "z"
+opt-level = "z" # optimize for binary size, but also turn off loop vectorization.
 lto = true
 codegen-units = 1
 
+# This disables tests for the bootrom and fixes the rust-analyzer error.
+[[bin]]
+name = "bootrom"
+test = false
+bench = false
+
 [dependencies]
+timewave = { path = "../timewave" }
