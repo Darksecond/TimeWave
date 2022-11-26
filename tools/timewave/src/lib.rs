@@ -3,6 +3,7 @@
 
 pub mod riscv;
 pub mod leds;
+pub mod uart;
 
 mod asm {
     use core::arch::global_asm;
