@@ -17,6 +17,8 @@ fn main() {
         .file("../../rtl/rom.sv")
         .file("../../rtl/ram.sv")
         .file("../../rtl/led_interface.sv")
+        .file("../../rtl/uart_tx.sv")
+        .file("../../rtl/wb_uart_tx.sv")
         .file("../../rtl/wb_multiplexer.sv")
         .file("../../rtl/bus_decoder.sv")
         .build();

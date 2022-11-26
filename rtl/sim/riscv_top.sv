@@ -6,7 +6,8 @@ module riscv_top
 (
   input wire logic clk_i,
   input wire logic reset_ni,
-  output logic [3:0] leds_o
+  output logic [3:0] leds_o,
+  output logic tx_o
 );
 
 // Rom
@@ -45,6 +46,18 @@ logic led_cyc;
 logic led_stb;
 logic led_we;
 
+// Uart (TX)
+logic [31:0] uart_data_s;
+logic uart_ack;
+logic uart_stall;
+logic uart_err;
+logic [31:0] uart_data_m;
+logic [29:0] uart_addr;
+logic [3:0] uart_sel;
+logic uart_cyc;
+logic uart_stb;
+logic uart_we;
+
 // Mux
 logic [31:0] mux_data_s;
 logic mux_ack;
@@ -59,7 +72,7 @@ logic mux_we;
 
 wb_multiplexer
 #(
-  .Count(2),
+  .Count(3),
   .MaskWidth(4)
 ) mux0
 (
@@ -77,16 +90,33 @@ wb_multiplexer
   .wb_m_stb_i(mux_stb),
   .wb_m_we_i(mux_we),
 
-  .wb_s_ack_i('{ram_ack, led_ack}),
-  .wb_s_stall_i('{ram_stall, led_stall}),
-  .wb_s_err_i('{ram_err, led_err}),
-  .wb_s_data_o('{ram_data_m, led_data_m}),
-  .wb_s_data_i('{ram_data_s, led_data_s}),
-  .wb_s_addr_o('{ram_addr, led_addr}),
-  .wb_s_sel_o('{ram_sel, led_sel}),
-  .wb_s_cyc_o('{ram_cyc, led_cyc}),
-  .wb_s_stb_o('{ram_stb, led_stb}),
-  .wb_s_we_o('{ram_we, led_we})
+  .wb_s_ack_i('{ram_ack, led_ack, uart_ack}),
+  .wb_s_stall_i('{ram_stall, led_stall, uart_stall}),
+  .wb_s_err_i('{ram_err, led_err, uart_err}),
+  .wb_s_data_o('{ram_data_m, led_data_m, uart_data_m}),
+  .wb_s_data_i('{ram_data_s, led_data_s, uart_data_s}),
+  .wb_s_addr_o('{ram_addr, led_addr, uart_addr}),
+  .wb_s_sel_o('{ram_sel, led_sel, uart_sel}),
+  .wb_s_cyc_o('{ram_cyc, led_cyc, uart_cyc}),
+  .wb_s_stb_o('{ram_stb, led_stb, uart_stb}),
+  .wb_s_we_o('{ram_we, led_we, uart_we})
+);
+
+wb_uart_tx uart0
+(
+  .clk_i,
+  .tx_o,
+
+  .wb_data_o(uart_data_s),
+  .wb_ack_o(uart_ack),
+  .wb_stall_o(uart_stall),
+  .wb_err_o(uart_err),
+  .wb_data_i(uart_data_m),
+  .wb_addr_i(uart_addr),
+  .wb_sel_i(uart_sel),
+  .wb_cyc_i(uart_cyc),
+  .wb_stb_i(uart_stb),
+  .wb_we_i(uart_we)
 );
 
 led_interface led0

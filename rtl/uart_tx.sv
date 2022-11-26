@@ -14,7 +14,7 @@ module uart_tx
 
   input wire logic [7:0] data_i,
 
-  output logic tx_o,
+  output logic tx_o
 );
 
 localparam Start = 4'd0;
