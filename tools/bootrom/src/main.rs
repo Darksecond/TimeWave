@@ -5,11 +5,12 @@
 fn main() -> ! {
     use timewave::{riscv, leds, uart};
     loop {
+        uart::write_char('A');
+
         leds::set(0xFF);
         riscv::sleep_cycles(riscv::SPEED / 2);
         leds::set(0x00);
         riscv::sleep_cycles(riscv::SPEED / 2);
 
-        uart::write_char('A');
     }
 }

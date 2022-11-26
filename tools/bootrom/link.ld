@@ -6,8 +6,8 @@ PROVIDE(_max_program_size = 64k);
 MEMORY
 {
   BOOT_ROM    (rx) : ORIGIN = 0x00000000, LENGTH = 16k
-  PROGRAM_RAM (!r) : ORIGIN = 0x20000000, LENGTH = _max_program_size
-  RAM         (!r) : ORIGIN = 0x20000000 + _max_program_size, LENGTH = 256m - _max_program_size
+  PROGRAM_RAM (!r) : ORIGIN = 0x00000000, LENGTH = _max_program_size
+  RAM         (!r) : ORIGIN = 0x00000000 + _max_program_size, LENGTH = 256m - _max_program_size
 }
 
 REGION_ALIAS("REGION_TEXT", BOOT_ROM);

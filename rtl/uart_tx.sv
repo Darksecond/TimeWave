@@ -21,6 +21,7 @@ localparam Start = 4'd0;
 localparam Stop = 4'd9;
 localparam Idle = 4'd10;
 
+logic baud_stb;
 logic [8:0] data;
 logic [3:0] state;
 logic [23:0] counter;
@@ -62,7 +63,6 @@ always_ff @(posedge clk_i) begin
 end
 
 // Clock logic
-logic baud_stb;
 assign baud_stb = counter == 0;
 initial counter = 0;
 always_ff @(posedge clk_i) begin
