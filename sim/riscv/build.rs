@@ -27,5 +27,6 @@ fn main() {
         .wire(1, "clk_i")
         .wire(1, "reset_ni")
         .wire(4, "leds_o")
+        .wire(1, "tx_o")
         .build("Sim");
 }

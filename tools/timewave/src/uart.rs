@@ -5,7 +5,7 @@ const UART: *mut u32 = 0x20000000 as _;
 fn is_ready() -> bool {
     unsafe {
         let val = ptr::read_volatile(UART);
-        val & 0x100 == 1
+        val & 0x100 == 0x100
     }
 }
 
