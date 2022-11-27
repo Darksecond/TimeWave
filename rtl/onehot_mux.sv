@@ -6,27 +6,37 @@ module onehot_mux
   parameter Width = 0
 )
 (
-  input wire logic [Count-1:0] select,
-  input wire logic [Width-1:0] words_in [0:Count-1],
-  output logic [Width-1:0] word_out
+  input wire logic [Count-1:0] select_i,
+  input wire logic [Width-1:0] words_i [Count],
+
+  output logic [Width-1:0] word_o
 );
 
-logic [Width-1:0] masked_words [0:Count-1];
+logic [Width-1:0] masked_words [Count];
 
 always_comb begin
   for(integer i = 0; i < Count; i = i + 1) begin
-    masked_words[i] = select[i] ? words_in[i] : '0;
+    masked_words[i] = select_i[i] ? words_i[i] : '0;
   end
 end
 
-word_reducer
-#(
-  .Width(Width),
-  .Count(Count)
-) reducer0
-(
-  .words_in(masked_words),
-  .word_out(word_out)
-);
+always_comb begin
+  for(integer i = 0; i < Width; i = i + 1) begin
+    logic [Count-1:0] bits;
+    for(integer j = 0; j < Count; j = j + 1) begin
+      bits[j] = masked_words[j][i];
+    end
+    word_o[i] = |bits;
+  end
+end
 
-endmodule;
+// Formal
+`ifdef FORMAL
+  onehot_mux_tb
+  #(
+    .Count(Count),
+    .Width(Width)
+  ) tb0(.*);
+`endif
+
+endmodule

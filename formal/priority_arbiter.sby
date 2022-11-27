@@ -12,8 +12,8 @@ prove: depth 20
 smtbmc
 
 [script]
-read -formal priority_arbiter.sv
-read -formal priority_arbiter_tb.sv
+read -sv -formal priority_arbiter.sv
+read -sv -formal priority_arbiter_tb.sv
 hierarchy -check -top priority_arbiter -chparam Count 3
 prep -top priority_arbiter
 

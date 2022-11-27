@@ -6,17 +6,17 @@ module word_reducer
   parameter Width = 0
 )
 (
-  input wire logic [Width-1:0] words_in [0:Count-1],
-  output logic [Width-1:0] word_out
+  input wire logic [Width-1:0] words_i [Count],
+  output logic [Width-1:0] word_o
 );
 
 always_comb begin
   for(integer i = 0; i < Width; i = i + 1) begin
     logic [Count-1:0] bits;
     for(integer j = 0; j < Count; j = j + 1) begin
-      bits[j] = words_in[j][i];
+      bits[j] = words_i[j][i];
     end
-    word_out[i] = |bits;
+    word_o[i] = |bits;
   end
 end
 

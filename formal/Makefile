@@ -1,3 +1,9 @@
+.PHONY: all
+all: uart_tx priority_arbiter onehot_mux
+
+.PHONY: onehot_mux
+onehot_mux:
+	sby -f onehot_mux.sby
 
 .PHONY: uart_tx
 uart_tx:
@@ -7,5 +13,3 @@ uart_tx:
 priority_arbiter:
 	sby -f priority_arbiter.sby
 
-.PHONY: all
-all: uart_tx priority_arbiter

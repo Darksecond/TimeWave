@@ -1,0 +1,23 @@
+[tasks]
+prove
+cover
+
+[options]
+prove: mode prove
+cover: mode cover
+cover: depth 20
+prove: depth 20
+
+[engines]
+smtbmc
+
+[script]
+plugin -i systemverilog
+verilog_defines -DFORMAL
+exec -- surelog -formal -parse +define+FORMAL -top onehot_mux -PWidth=32 -PCount=3 onehot_mux.sv onehot_mux_tb.sv
+read_uhdm slpp_all/surelog.uhdm
+prep -top onehot_mux
+
+[files]
+onehot_mux_tb.sv
+../rtl/onehot_mux.sv
