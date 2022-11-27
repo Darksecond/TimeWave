@@ -38,4 +38,14 @@ always_ff @(posedge clk_i) begin
   end
 end
 
+always_comb begin
+  case(grant_o)
+    3'b000: assert(1);
+    3'b001: assert(1);
+    3'b010: assert(1);
+    3'b100: assert(1);
+    default: assert(0);
+  endcase
+end
+
 endmodule
