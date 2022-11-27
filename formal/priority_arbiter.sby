@@ -1,0 +1,22 @@
+[tasks]
+prove
+cover
+
+[options]
+prove: mode prove
+cover: mode cover
+cover: depth 20
+prove: depth 20
+
+[engines]
+smtbmc
+
+[script]
+read -formal priority_arbiter.sv
+read -formal priority_arbiter_tb.sv
+hierarchy -check -top priority_arbiter -chparam Count 3
+prep -top priority_arbiter
+
+[files]
+priority_arbiter_tb.sv
+../rtl/priority_arbiter.sv
