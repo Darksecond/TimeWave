@@ -1,3 +1,4 @@
 uart_tx_*/
 priority_arbiter_*/
 onehot_mux_*/
+wb_arbiter_*/

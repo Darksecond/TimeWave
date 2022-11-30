@@ -2,8 +2,8 @@
 
 module onehot_mux
 #(
-  parameter Count = 0,
-  parameter Width = 0
+  parameter Count,
+  parameter Width
 )
 (
   input wire logic [Count-1:0] select_i,
@@ -12,7 +12,7 @@ module onehot_mux
   output logic [Width-1:0] word_o
 );
 
-logic [Width-1:0] masked_words [Count];
+logic [Count-1:0][Width-1:0] masked_words;
 
 always_comb begin
   for(integer i = 0; i < Count; i = i + 1) begin

@@ -12,10 +12,10 @@ prove: depth 20
 smtbmc
 
 [script]
-plugin -i systemverilog
-verilog_defines -DFORMAL
-exec -- surelog -formal -parse +define+FORMAL -top onehot_mux -PWidth=32 -PCount=3 onehot_mux.sv onehot_mux_tb.sv
-read_uhdm slpp_all/surelog.uhdm
+exec -- sv2v -DONEHOT_MUX -DFORMAL --write=adjacent --exclude=Assert *.sv
+read -formal onehot_mux.v
+read -formal onehot_mux_tb.v
+hierarchy -check -top onehot_mux -chparam Count 3 -chparam Width 32
 prep -top onehot_mux
 
 [files]

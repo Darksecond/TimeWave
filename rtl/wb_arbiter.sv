@@ -3,28 +3,51 @@
 module wb_arbiter
 #(
   parameter DataWidth = 32,
-  parameter AddrWidth = 32,
+  parameter AddrWidth = 30,
   parameter Count = 0,
 
   localparam SelWidth = DataWidth / 8
 )
 (
-  input wire logic clk,
-  input wire logic reset_n,
+  input wire logic clk_i,
+  input wire logic reset_ni,
 
-  wb_bus.follower leaders [0:Count-1],
-  wb_bus.leader follower
+  // Masters
+  output logic [DataWidth-1:0] wb_m_data_o [Count],
+  output logic wb_m_ack_o [Count],
+  output logic wb_m_stall_o [Count],
+  output logic wb_m_err_o [Count],
+
+  input wire logic [DataWidth-1:0] wb_m_data_i [Count],
+  input wire logic [AddrWidth-1:0] wb_m_addr_i [Count],
+  input wire logic [SelWidth-1:0] wb_m_sel_i [Count],
+  input wire logic wb_m_cyc_i [Count],
+  input wire logic wb_m_stb_i [Count],
+  input wire logic wb_m_we_i [Count],
+
+  // Slave
+  input wire logic [DataWidth-1:0] wb_s_data_i,
+  input wire logic wb_s_ack_i,
+  input wire logic wb_s_stall_i,
+  input wire logic wb_s_err_i,
+
+  output logic [DataWidth-1:0] wb_s_data_o,
+  output logic [AddrWidth-1:0] wb_s_addr_o,
+  output logic [SelWidth-1:0] wb_s_sel_o,
+  output logic wb_s_cyc_o,
+  output logic wb_s_stb_o,
+  output logic wb_s_we_o
 );
 
 logic [Count-1:0] grant;
 logic [Count-1:0] cycle;
 
 localparam TotalWidth = DataWidth + AddrWidth + SelWidth + 3;
-logic [TotalWidth-1:0] data[0:Count-1];
+logic [TotalWidth-1:0] data [Count];
 
 for(genvar i = 0; i < Count; i += 1) begin
-  assign cycle[i] = leaders[i].cycle;
-  assign data[i] = { leaders[i].cycle, leaders[i].strobe, leaders[i].write_enable, leaders[i].select, leaders[i].addr, leaders[i].write_data };
+  assign cycle[i] = wb_m_cyc_i[i];
+  assign data[i] = { wb_m_cyc_i[i], wb_m_stb_i[i], wb_m_we_i[i], wb_m_sel_i[i], wb_m_addr_i[i], wb_m_data_i[i] };
 end
 
 priority_arbiter
@@ -32,18 +55,17 @@ priority_arbiter
   .Count(Count)
 ) arbiter0
 (
-  .clk,
-  .reset_n,
+  .clk_i,
 
-  .requests(cycle),
-  .grant
+  .requests_i(cycle),
+  .grant_o(grant)
 );
 
 for(genvar i = 0; i < Count; i += 1) begin
-  assign leaders[i].read_data = follower.read_data;
-  assign leaders[i].ack = follower.ack;
-  assign leaders[i].error = follower.error;
-  assign leaders[i].stall = grant[i] == '0 ? 1'b1 : follower.stall;
+  assign wb_m_data_o[i] = wb_s_data_i;
+  assign wb_m_ack_o[i] = wb_s_ack_i;
+  assign wb_m_err_o[i] = wb_s_err_i;
+  assign wb_m_stall_o[i] = grant[i] == '0 ? 1'b1 : wb_s_stall_i;
 end
 
 onehot_mux
@@ -52,9 +74,19 @@ onehot_mux
   .Width(TotalWidth)
 ) mux0
 (
-  .select(grant),
-  .words_in(data),
-  .word_out({ follower.cycle, follower.strobe, follower.write_enable, follower.select, follower.addr, follower.write_data })
+  .select_i(grant),
+  .words_i(data),
+  .word_o({ wb_s_cyc_o, wb_s_stb_o, wb_s_we_o, wb_s_sel_o, wb_s_addr_o, wb_s_data_o })
 );
+
+// Formal
+`ifdef FORMAL
+  wb_arbiter_tb
+  #(
+    .DataWidth(DataWidth),
+    .AddrWidth(AddrWidth),
+    .Count(Count)
+  ) tb0(.*);
+`endif
 
 endmodule

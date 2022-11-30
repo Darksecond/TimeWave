@@ -1,0 +1,42 @@
+[tasks]
+prove
+cover
+
+[options]
+prove: mode prove
+cover: mode cover
+cover: depth 20
+prove: depth 20
+
+[engines]
+smtbmc
+
+[script]
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized wb_arbiter.sv
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized wb_arbiter_tb.sv
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized onehot_mux.sv
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized onehot_mux_tb.sv
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized priority_arbiter.sv
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized priority_arbiter_tb.sv
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized wb_master_tb.sv
+exec -- sv2v -DFORMAL --write=adjacent --exclude=Assert --exclude=UnbasedUnsized wb_slave_tb.sv
+read -formal wb_arbiter.v
+read -formal wb_arbiter_tb.v
+read -formal onehot_mux.v
+read -formal onehot_mux_tb.v
+read -formal priority_arbiter.v
+read -formal priority_arbiter_tb.v
+read -formal wb_master_tb.v
+read -formal wb_slave_tb.v
+hierarchy -check -top wb_arbiter -chparam Count 3
+prep -top wb_arbiter
+
+[files]
+wb_master_tb.sv
+wb_slave_tb.sv
+wb_arbiter_tb.sv
+onehot_mux_tb.sv
+priority_arbiter_tb.sv
+../rtl/wb_arbiter.sv
+../rtl/onehot_mux.sv
+../rtl/priority_arbiter.sv
