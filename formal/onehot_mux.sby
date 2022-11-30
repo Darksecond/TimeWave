@@ -12,7 +12,8 @@ prove: depth 20
 smtbmc
 
 [script]
-exec -- sv2v -DONEHOT_MUX -DFORMAL --write=adjacent --exclude=Assert *.sv
+exec -- sv2v -DONEHOT_MUX -DFORMAL --write=adjacent --exclude=Assert onehot_mux.sv
+exec -- sv2v -DONEHOT_MUX -DFORMAL --write=adjacent --exclude=Assert onehot_mux_tb.sv
 read -formal onehot_mux.v
 read -formal onehot_mux_tb.v
 hierarchy -check -top onehot_mux -chparam Count 3 -chparam Width 32
