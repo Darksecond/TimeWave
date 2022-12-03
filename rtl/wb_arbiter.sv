@@ -10,7 +10,6 @@ module wb_arbiter
 )
 (
   input wire logic clk_i,
-  input wire logic reset_ni,
 
   // Masters
   output logic [DataWidth-1:0] wb_m_data_o [Count],
@@ -39,8 +38,15 @@ module wb_arbiter
   output logic wb_s_we_o
 );
 
-logic [Count-1:0] grant;
+logic [Count-1:0] grant_d;
+logic [Count-1:0] grant_q;
 logic [Count-1:0] cycle;
+
+initial grant_q = '0;
+
+always_ff @(posedge clk_i) begin
+  grant_q <= grant_d;
+end
 
 localparam TotalWidth = DataWidth + AddrWidth + SelWidth + 3;
 logic [TotalWidth-1:0] data [Count];
@@ -58,14 +64,14 @@ priority_arbiter
   .clk_i,
 
   .requests_i(cycle),
-  .grant_o(grant)
+  .grant_o(grant_d)
 );
 
 for(genvar i = 0; i < Count; i += 1) begin
-  assign wb_m_data_o[i] = wb_s_data_i;
-  assign wb_m_ack_o[i] = wb_s_ack_i;
-  assign wb_m_err_o[i] = wb_s_err_i;
-  assign wb_m_stall_o[i] = grant[i] == '0 ? 1'b1 : wb_s_stall_i;
+  assign wb_m_data_o[i] = grant_q[i] == '1 ? wb_s_data_i : '0;
+  assign wb_m_ack_o[i] = grant_q[i] == '1 ? wb_s_ack_i : '0;
+  assign wb_m_err_o[i] = grant_q[i] == '1 ? wb_s_err_i : '0;
+  assign wb_m_stall_o[i] = grant_q[i] == '0 ? 1'b1 : wb_s_stall_i;
 end
 
 onehot_mux
@@ -74,7 +80,7 @@ onehot_mux
   .Width(TotalWidth)
 ) mux0
 (
-  .select_i(grant),
+  .select_i(grant_q),
   .words_i(data),
   .word_o({ wb_s_cyc_o, wb_s_stb_o, wb_s_we_o, wb_s_sel_o, wb_s_addr_o, wb_s_data_o })
 );

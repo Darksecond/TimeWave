@@ -1,11 +1,13 @@
 #![no_std]
 #![no_main]
 
+use timewave::println;
+
 #[no_mangle]
 fn main() -> ! {
-    use timewave::{riscv, leds, uart};
+    use timewave::{riscv, leds};
     loop {
-        uart::write_char('A');
+        println!("Hello, World!");
 
         leds::set(0xFF);
         riscv::sleep_cycles(riscv::SPEED / 2);

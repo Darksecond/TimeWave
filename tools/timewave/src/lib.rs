@@ -4,6 +4,7 @@
 pub mod riscv;
 pub mod leds;
 pub mod uart;
+pub mod console;
 
 mod asm {
     use core::arch::global_asm;
@@ -28,7 +29,9 @@ extern "C" fn _rust_entry() -> ! {
 }
 
 #[panic_handler]
-fn panic_handler(_info: &PanicInfo) -> ! {
+fn panic_handler(info: &PanicInfo) -> ! {
+    println!("{}", info);
+
     loop {
         leds::set(0xFF);
     }
